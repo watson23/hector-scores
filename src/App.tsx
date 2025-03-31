@@ -29,7 +29,7 @@ export default function GolfScoreApp() {
   if (!started) {
     return (
       <div className="p-4 max-w-xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Golf Score Tracker</h1>
+        <h1 className="text-2xl font-bold mb-4">Hector Golf Scores</h1>
         <div className="flex mb-2">
           <input
             className="border rounded px-2 py-1 flex-grow mr-2"
