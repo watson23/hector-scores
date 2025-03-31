@@ -1,7 +1,5 @@
-
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import "./index.css";
 
 export default function GolfScoreApp() {
   const [players, setPlayers] = useState<string[]>([]);
@@ -39,14 +37,14 @@ export default function GolfScoreApp() {
             value={playerInput}
             onChange={(e) => setPlayerInput(e.target.value)}
           />
-          <Button onClick={addPlayer}>Add</Button>
+          <button className="px-4 py-1 bg-blue-600 text-white rounded" onClick={addPlayer}>Add</button>
         </div>
         <ul className="mb-4">
           {players.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
-        {players.length > 0 && <Button onClick={() => setStarted(true)}>Start Round</Button>}
+        {players.length > 0 && <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={() => setStarted(true)}>Start Round</button>}
       </div>
     );
   }
@@ -55,21 +53,19 @@ export default function GolfScoreApp() {
     <div className="p-4 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Hole {hole}</h1>
       {players.map((player) => (
-        <Card key={player} className="mb-2">
-          <CardContent className="flex justify-between items-center p-4">
-            <span>{player}</span>
-            <input
-              type="number"
-              className="border rounded px-2 py-1 w-16 text-center"
-              value={scores[player][hole - 1]}
-              onChange={(e) => updateScore(player, parseInt(e.target.value) || 0)}
-            />
-          </CardContent>
-        </Card>
+        <div key={player} className="bg-white shadow rounded p-4 mb-2 flex justify-between items-center">
+          <span>{player}</span>
+          <input
+            type="number"
+            className="border rounded px-2 py-1 w-16 text-center"
+            value={scores[player][hole - 1]}
+            onChange={(e) => updateScore(player, parseInt(e.target.value) || 0)}
+          />
+        </div>
       ))}
       <div className="flex justify-between mt-4">
-        <Button disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</Button>
-        <Button disabled={hole >= 18} onClick={() => setHole(hole + 1)}>Next</Button>
+        <button className="px-4 py-1 bg-gray-300 rounded" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
+        <button className="px-4 py-1 bg-gray-300 rounded" disabled={hole >= 18} onClick={() => setHole(hole + 1)}>Next</button>
       </div>
       <h2 className="text-xl font-semibold mt-6 mb-2">Total Scores</h2>
       <ul>
