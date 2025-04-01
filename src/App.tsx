@@ -33,6 +33,88 @@ export default function GolfScoreApp() {
     }
   }, [players, holeCount, scores]);
 
+  if (!started) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-3xl font-bold text-yellow-800 mb-6 text-center">Hector Scores</h1>
+
+          <div className="mb-6 w-full max-w-md">
+            <label className="block text-yellow-800 font-medium mb-1">Select course:</label>
+            <select
+              className="border border-yellow-500 rounded px-3 py-2 w-full mb-4"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+            >
+              <option value="hirsala">Hirsala Golf</option>
+              <option value="tapiola">Tapiola Golf</option>
+            </select>
+
+            <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
+            <select
+              className="border border-yellow-500 rounded px-3 py-2 w-full"
+              value={holeCount}
+              onChange={(e) => setHoleCount(Number(e.target.value))}
+            >
+              <option value={9}>9</option>
+              <option value={18}>18</option>
+            </select>
+          </div>
+
+          <div className="mb-4 w-full max-w-md">
+            <label className="block text-yellow-800 font-medium mb-1">Round name:</label>
+            <input
+              type="text"
+              value={roundName}
+              onChange={(e) => setRoundName(e.target.value)}
+              className="border border-yellow-500 rounded px-3 py-2 w-full"
+              placeholder="e.g. Friday with Ville & Laura"
+            />
+          </div>
+
+          <div className="flex mb-4">
+            <input
+              type="text"
+              value={playerInput}
+              onChange={(e) => setPlayerInput(e.target.value)}
+              className="border border-yellow-400 rounded-l px-3 py-2 w-full"
+              placeholder="Add player"
+            />
+            <button
+              className="bg-yellow-500 text-white px-4 py-2 rounded-r hover:bg-yellow-600"
+              onClick={() => {
+                if (playerInput.trim() && !players.includes(playerInput.trim())) {
+                  setPlayers([...players, playerInput.trim()]);
+                  setScores({ ...scores, [playerInput.trim()]: Array(holeCount).fill("") });
+                  setPlayerInput("");
+                }
+              }}
+            >
+              Add
+            </button>
+          </div>
+
+          {players.length > 0 && (
+            <ul className="mb-4">
+              {players.map((p) => (
+                <li key={p} className="text-yellow-800 text-sm">{p}</li>
+              ))}
+            </ul>
+          )}
+
+          {players.length > 0 && (
+            <button
+              className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md w-full"
+              onClick={() => setStarted(true)}
+            >
+              Start Round
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
       <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
