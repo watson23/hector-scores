@@ -242,7 +242,9 @@ if (val >= par + 2) return 'bg-blue-200 text-blue-900';
                 ))}
                   <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
                   <td className="px-2 py-1 text-center font-bold">{(() => {
-                    const diff = totalScore(player) - courses[course].slice(0, holeCount).reduce((sum, val) => sum + val, 0);
+                    const played = scores[player].map(s => parseInt(s)).filter(n => !isNaN(n));
+                    const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
+                    const diff = played.reduce((sum, val) => sum + val, 0) - parPlayed;
                     return diff > 0 ? `+${diff}` : diff;
                   })()}</td>
                 </tr>
