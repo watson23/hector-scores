@@ -201,10 +201,10 @@ export default function GolfScoreApp() {
           </div>
         ))}
 
-        <div className="flex justify-between mt-6">
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
-        </div>
+        <div className="flex justify-center gap-4 mt-4 mb-8 max-w-md mx-auto">
+  <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
+  <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
+</div>
 
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-purple-200 text-center">Scorecard</h2>
         <div className="bg-white rounded-3xl shadow p-6 max-w-5xl mx-auto xl:overflow-visible overflow-x-auto">
