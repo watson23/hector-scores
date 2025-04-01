@@ -83,6 +83,21 @@ export default function GolfScoreApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-100 to-white p-6">
+      <div className="flex justify-end mb-4 max-w-xl mx-auto">
+        <button
+          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
+          onClick={() => {
+            setPlayers([]);
+            setScores({});
+            setHole(1);
+            setStarted(false);
+            localStorage.removeItem("hector-players");
+            localStorage.removeItem("hector-scores");
+          }}
+        >
+          New Round
+        </button>
+      </div>
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-extrabold mb-6 text-green-800 text-center">Hole {hole}</h1>
         {players.map((player) => (
