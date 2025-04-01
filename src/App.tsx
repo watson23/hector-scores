@@ -17,125 +17,21 @@ export default function GolfScoreApp() {
   };
 
   useEffect(() => {
-    const savedRoundName = localStorage.getItem("hector-round-name");
-    if (savedRoundName) setRoundName(savedRoundName);
-
-    const savedPlayers = localStorage.getItem("hector-players");
-    const savedScores = localStorage.getItem("hector-scores");
-    if (savedPlayers && savedScores) {
-      setPlayers(JSON.parse(savedPlayers));
-      setScores(JSON.parse(savedScores));
-      setStarted(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (players.length > 0) {
-      localStorage.setItem("hector-players", JSON.stringify(players));
-      localStorage.setItem("hector-scores", JSON.stringify(scores));
-    }
-  }, [players, scores]);
-
-  const addPlayer = () => {
-    if (playerInput.trim() === "") return;
-    const newPlayers = [...players, playerInput.trim()];
-    setPlayers(newPlayers);
-    setScores((prev) => ({ ...prev, [playerInput.trim()]: Array(holeCount).fill("") }));
-    setPlayerInput("");
-  };
-
-  const updateScore = (player: string, value: string) => {
-    setScores((prev) => {
-      const updated = [...prev[player]];
-      updated[hole - 1] = value;
-      return { ...prev, [player]: updated };
-    });
-  };
-
-  const totalScore = (player: string) => {
-    const relevantScores = scores[player]?.slice(0, holeCount) || [];
-    return relevantScores.reduce((sum, val) => {
-      const parsed = parseInt(val);
-      return sum + (isNaN(parsed) ? 0 : parsed);
-    }, 0);
-  };
-
-  if (!started) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
-        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
-        <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
-        <div className="mb-4 w-full max-w-md">
-          <label className="block text-yellow-800 font-medium mb-1">Name this round (optional):</label>
-          <input
-            className="border border-yellow-500 rounded px-3 py-2 w-full"
-            placeholder="e.g. Friday with Ville & Laura"
-            value={roundName}
-            onChange={(e) => setRoundName(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-6 w-full max-w-md">
-  <label className="block text-yellow-800 font-medium mb-1">Select course:</label>
-  <select
-    className="border border-yellow-500 rounded px-3 py-2 w-full mb-4"
-    value={course}
-    onChange={(e) => setCourse(e.target.value)}
-  >
-    <option value="hirsala">Hirsala Golf</option>
-    <option value="tapiola">Tapiola Golf</option>
-  </select>
-
-  <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
-  <select
-    className="border border-yellow-500 rounded px-3 py-2 w-full"
-    value={holeCount}
-    onChange={(e) => setHoleCount(Number(e.target.value))}
-  >
-    <option value={9}>9</option>
-    <option value={18}>18</option>
-  </select>
-</div>
-
-        <div className="flex mb-4 w-full max-w-md">
-          <input
-            className="border border-yellow-500 rounded-l px-4 py-2 w-full focus:outline-none"
-            placeholder="Enter player name"
-            value={playerInput}
-            onChange={(e) => setPlayerInput(e.target.value)}
-          />
-          <button className="px-4 py-2 bg-yellow-600 text-white rounded-r hover:bg-yellow-700" onClick={addPlayer}>Add</button>
-        </div>
-
-        <ul className="text-yellow-800 mb-6">
-          {players.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-
-        {players.length > 0 && (
-          <button
-            className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md"
-            onClick={() => {
-              localStorage.setItem("hector-round-name", roundName);
-              setStarted(true);
-            }}
-          >
-            Start Round
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  useEffect(() => {
+    let needsUpdate = false;
     const filledScores: typeof scores = {};
     players.forEach((p) => {
       const current = scores[p] || [];
-      filledScores[p] = [...current, ...Array(Math.max(0, holeCount - current.length)).fill("")];
+      if (current.length < holeCount) {
+        filledScores[p] = [...current, ...Array(holeCount - current.length).fill("")];
+        needsUpdate = true;
+      } else {
+        filledScores[p] = current;
+      }
     });
-    setScores(filledScores);
-  }, [players, holeCount]);
+    if (needsUpdate) {
+      setScores(filledScores);
+    }
+  }, [players, holeCount, scores]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
