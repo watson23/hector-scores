@@ -164,7 +164,7 @@ export default function GolfScoreApp() {
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none">
         <h1 className="text-3xl font-extrabold text-yellow-800 text-center mb-1">{roundName || "Unnamed Round"}</h1>
         <p className="text-md text-yellow-600 text-center mb-5">Hole {hole} / {holeCount}</p>
 
@@ -193,7 +193,7 @@ export default function GolfScoreApp() {
         </div>
 
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Scorecard</h2>
-        <div className="overflow-x-auto bg-white rounded-lg shadow w-full">
+        <div className="bg-white rounded-lg shadow w-full xl:overflow-visible">
           <table className="min-w-fit text-sm">
             <thead className="bg-yellow-100 text-yellow-800">
               <tr>
