@@ -4,9 +4,9 @@ import "./index.css";
 export default function GolfScoreApp() {
   const [players, setPlayers] = useState<string[]>([]);
   const [playerInput, setPlayerInput] = useState("");
-  const [scores, setScores] = useState<{ [player: string]: number[] }>({});
-  const [holeCount, setHoleCount] = useState(18);
+  const [scores, setScores] = useState<{ [player: string]: string[] }>({});
   const [hole, setHole] = useState(1);
+  const [holeCount, setHoleCount] = useState(18);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
@@ -47,23 +47,23 @@ export default function GolfScoreApp() {
   };
 
   if (!started) {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
-      <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
-      <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
+        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
+        <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
 
-      <div className="mb-6 w-full max-w-md">
-        <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
-        <select
-          className="border border-yellow-500 rounded px-3 py-2 w-full"
-          value={holeCount}
-          onChange={(e) => setHoleCount(Number(e.target.value))}
-        >
-          <option value={9}>9</option>
-          <option value={18}>18</option>
-        </select>
-      </div>
-      
+        <div className="mb-6 w-full max-w-md">
+          <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
+          <select
+            className="border border-yellow-500 rounded px-3 py-2 w-full"
+            value={holeCount}
+            onChange={(e) => setHoleCount(Number(e.target.value))}
+          >
+            <option value={9}>9</option>
+            <option value={18}>18</option>
+          </select>
+        </div>
+
         <div className="flex mb-4 w-full max-w-md">
           <input
             className="border border-yellow-500 rounded-l px-4 py-2 w-full focus:outline-none"
@@ -73,17 +73,27 @@ export default function GolfScoreApp() {
           />
           <button className="px-4 py-2 bg-yellow-600 text-white rounded-r hover:bg-yellow-700" onClick={addPlayer}>Add</button>
         </div>
+
         <ul className="text-yellow-800 mb-6">
           {players.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
-{players.length > 0 && <button className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md" onClick={() => setStarted(true)}>Start Round</button>}
+
+        {players.length > 0 && (
+          <button
+            className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md"
+            onClick={() => setStarted(true)}
+          >
+            Start Round
+          </button>
+        )}
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-100 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
       <div className="flex justify-end mb-4 max-w-xl mx-auto">
         <button
           className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
@@ -100,11 +110,11 @@ export default function GolfScoreApp() {
         </button>
       </div>
       <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-extrabold mb-6 text-green-800 text-center">Hole {hole}</h1>
+        <h1 className="text-3xl font-extrabold mb-6 text-yellow-800 text-center">Hole {hole}</h1>
         {players.map((player) => (
           <div key={player} className="bg-white border border-yellow-200 shadow-sm rounded-2xl p-4 mb-4">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-yellow-800">{player}</span>
+              <span className="font-medium text-yellow-900">{player}</span>
               <input
                 type="text"
                 inputMode="numeric"
