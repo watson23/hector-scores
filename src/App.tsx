@@ -47,23 +47,24 @@ export default function GolfScoreApp() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-200 to-green-50 p-6 flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-6 text-green-900">Hector Scores</h1>
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
+        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
+        <h1 className="text-4xl font-bold mb-6 text-yellow-700">Hector Scores</h1>
         <div className="flex mb-4 w-full max-w-md">
           <input
-            className="border border-green-400 rounded-l px-4 py-2 w-full focus:outline-none"
+            className="border border-yellow-500 rounded-l px-4 py-2 w-full focus:outline-none"
             placeholder="Enter player name"
             value={playerInput}
             onChange={(e) => setPlayerInput(e.target.value)}
           />
-          <button className="px-4 py-2 bg-green-600 text-white rounded-r hover:bg-green-700" onClick={addPlayer}>Add</button>
+          <button className="px-4 py-2 bg-yellow-600 text-white rounded-r hover:bg-yellow-700" onClick={addPlayer}>Add</button>
         </div>
-        <ul className="text-green-800 mb-6">
+        <ul className="text-yellow-800 mb-6">
           {players.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
-        {players.length > 0 && <button className="px-6 py-2 bg-green-700 text-white rounded hover:bg-green-800 shadow-md" onClick={() => setStarted(true)}>Start Round</button>}
+        {players.length > 0 && <button className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md" onClick={() => setStarted(true)}>Start Round</button>}
       </div>
     );
   }
@@ -73,14 +74,14 @@ export default function GolfScoreApp() {
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-extrabold mb-6 text-green-800 text-center">Hole {hole}</h1>
         {players.map((player) => (
-          <div key={player} className="bg-white border border-green-200 shadow-sm rounded-2xl p-4 mb-4">
+          <div key={player} className="bg-white border border-yellow-200 shadow-sm rounded-2xl p-4 mb-4">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-green-900">{player}</span>
+              <span className="font-medium text-yellow-800">{player}</span>
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="border border-green-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="border border-yellow-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 value={scores[player][hole - 1]}
                 onChange={(e) => updateScore(player, e.target.value.replace(/^0+(?!$)/, ""))}
               />
@@ -94,7 +95,7 @@ export default function GolfScoreApp() {
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= 18} onClick={() => setHole(hole + 1)}>Next</button>
         </div>
-        <h2 className="text-2xl font-semibold mt-8 mb-3 text-green-900 text-center">Total Scores</h2>
+        <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Total Scores</h2>
         <ul className="bg-white rounded-lg p-4 shadow">
           {players.map((player) => (
             <li key={player} className="mb-2 flex justify-between border-b pb-1">
