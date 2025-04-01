@@ -59,7 +59,7 @@ export default function GolfScoreApp() {
 </div>
 
           <div className="mb-6 w-full max-w-md">
-            <label className="block text-purple-800 font-medium mb-1">Select course:</label>
+            <label className="block text-purple-200 font-medium mb-1">Select course:</label>
             <select
               className="border border-purple-400 rounded px-3 py-2 w-full mb-4"
               value={course}
@@ -69,7 +69,7 @@ export default function GolfScoreApp() {
               <option value="tapiola">Tapiola Golf</option>
             </select>
 
-            <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
+            <label className="block text-purple-200 font-medium mb-1">Select number of holes:</label>
             <select
               className="border border-yellow-500 rounded px-3 py-2 w-full"
               value={holeCount}
@@ -81,7 +81,7 @@ export default function GolfScoreApp() {
           </div>
 
           <div className="mb-4 w-full max-w-md">
-            <label className="block text-yellow-800 font-medium mb-1">Round name:</label>
+            <label className="block text-purple-300 font-medium mb-1">Round name:</label>
             <input
               type="text"
               value={roundName}
@@ -123,7 +123,7 @@ export default function GolfScoreApp() {
 
           {players.length > 0 && (
             <button
-              className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md w-full"
+              className="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow-md w-full"
               onClick={() => setStarted(true)}
             >
               Start Round
@@ -135,7 +135,7 @@ export default function GolfScoreApp() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 p-6">
       <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
         <button
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
@@ -154,7 +154,7 @@ export default function GolfScoreApp() {
           Save Round
         </button>
         <button
-          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
           onClick={() => {
             setPlayers([]);
             setScores({});
@@ -172,7 +172,7 @@ export default function GolfScoreApp() {
         <p className="text-md text-purple-400 text-center mb-5">Hole {hole} / {holeCount}</p>
 
         {players.map((player) => (
-          <div key={player} className="bg-white border border-purple-300 shadow-sm rounded-2xl p-4 mb-4">
+          <div key={player} className="bg-gray-50 border border-purple-300 shadow-sm rounded-3xl p-6 mb-6 max-w-xl mx-auto">
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium text-purple-200">{player}</span>
               <input
@@ -198,7 +198,7 @@ export default function GolfScoreApp() {
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Scorecard</h2>
         <div className="bg-white rounded-lg shadow w-full xl:overflow-visible">
           <table className="min-w-fit text-sm">
-            <thead className="bg-purple-100 text-yellow-800">
+            <thead className="bg-purple-800 text-white">
               <tr>
                 <th className="px-2 py-1 text-left">Player</th>
                 {Array.from({ length: Number(holeCount) }).map((_, i) => (
@@ -223,7 +223,7 @@ export default function GolfScoreApp() {
                 }
                 return (
                   <tr key={player} className="border-t">
-                    <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
+                    <td className="px-2 py-1 font-medium text-purple-200 whitespace-nowrap">{player}</td>
                     {Array.from({ length: Number(holeCount) }).map((_, i) => {
                       const val = parseInt(scores[player][i]);
                       const par = courses[course][i];
