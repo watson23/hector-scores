@@ -22,7 +22,7 @@ export default function GolfScoreApp() {
     players.forEach((p) => {
       const current = scores[p] || [];
       if (current.length < holeCount) {
-        filledScores[p] = [...current, ...Array(holeCount - current.length).fill("")];
+        filledScores[p] = [...current, ...Array.from({ length: holeCount - current.length }, () => "")];
         needsUpdate = true;
       } else {
         filledScores[p] = current;
@@ -198,7 +198,7 @@ export default function GolfScoreApp() {
             <thead className="bg-yellow-100 text-yellow-800">
               <tr>
                 <th className="px-2 py-1 text-left">Player</th>
-                {[...Array(holeCount)].map((_, i) => (
+                {Array.from({ length: Number(holeCount) }).map((_, i) => (
                   <th key={i} className="px-2 py-1 text-center">{i + 1}</th>
                 ))}
                 <th className="px-2 py-1 text-center">Total</th>
