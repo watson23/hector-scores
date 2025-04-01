@@ -47,18 +47,22 @@ export default function GolfScoreApp() {
   };
 
   if (!started) {
-    return (
-      <div className="mb-4">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
+      <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
+      <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
+
+      <div className="mb-6 w-full max-w-md">
         <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
         <select
-          className="border border-yellow-500 rounded px-3 py-2"
+          className="border border-yellow-500 rounded px-3 py-2 w-full"
           value={holeCount}
           onChange={(e) => setHoleCount(Number(e.target.value))}
         >
           <option value={9}>9</option>
           <option value={18}>18</option>
         </select>
-      </div>,
+      </div>
       <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
         <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
         <h1 className="text-4xl font-bold mb-6 text-yellow-700">Hector Scores</h1>
