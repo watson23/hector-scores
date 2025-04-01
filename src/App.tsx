@@ -136,7 +136,7 @@ export default function GolfScoreApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 p-6">
-      <div className="flex justify-center gap-4 mb-6 max-w-xl mx-auto">
+      <div className="flex justify-center gap-4 mb-6 max-w-md mx-auto">
         <button
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
           onClick={() => {
@@ -175,14 +175,26 @@ export default function GolfScoreApp() {
           <div key={player} className="bg-gray-50 border border-purple-300 shadow-sm rounded-3xl p-6 mb-6 max-w-xl mx-auto">
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium text-purple-800">{player}</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                className="border border-purple-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-purple-400"
-                value={scores[player][hole - 1]}
-                onChange={(e) => updateScore(player, e.target.value)}
-              />
+              <div className="flex flex-wrap gap-2 justify-end">
+  {["1","2","3","4","5","6","7","8","9","-"].map((n) => (
+    <button
+      key={n}
+      className="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700"
+      onClick={() => updateScore(player, n === "-" ? "" : n)}
+    >
+      {n}
+    </button>
+  ))}
+  <input
+    type="text"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    placeholder="10+"
+    className="border border-purple-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-purple-400"
+    value={scores[player][hole - 1]}
+    onChange={(e) => updateScore(player, e.target.value)}
+  />
+</div>
             </div>
             <div className="text-sm text-gray-500">
               Scores: {scores[player].map((s, i) => s ? `${i + 1}:${s}` : null).filter(Boolean).join(", ") || "-"}
@@ -196,7 +208,7 @@ export default function GolfScoreApp() {
         </div>
 
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-purple-200 text-center">Scorecard</h2>
-        <div className="bg-white rounded-3xl shadow p-4 max-w-6xl mx-auto xl:overflow-visible">
+        <div className="bg-white rounded-3xl shadow p-6 max-w-5xl mx-auto xl:overflow-visible">
           <table className="min-w-fit text-sm">
             <thead className="bg-purple-800 text-white">
               <tr>
