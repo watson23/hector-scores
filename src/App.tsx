@@ -209,6 +209,7 @@ export default function GolfScoreApp() {
                   <th key={i} className="px-2 py-1 text-center">{i + 1}</th>
                 ))}
                 <th className="px-2 py-1 text-center">Total</th>
+                <th className="px-2 py-1 text-center">± Par</th>
               </tr>
             </thead>
             <tbody>
@@ -234,6 +235,10 @@ if (val >= par + 2) return 'bg-blue-200 text-blue-900';
                   })()}`}>{scores[player][i] || ''}</td>
                 ))}
                   <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
+                  <td className="px-2 py-1 text-center font-bold">{(() => {
+                    const diff = totalScore(player) - courses[course].slice(0, holeCount).reduce((sum, val) => sum + val, 0);
+                    return diff > 0 ? `+${diff}` : diff;
+                  })()}</td>
                 </tr>
               ))}
             </tbody>
