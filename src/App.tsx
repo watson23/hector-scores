@@ -111,6 +111,23 @@ export default function GolfScoreApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
+      <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
+        <button
+          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
+          onClick={() => {
+            const savedRounds = JSON.parse(localStorage.getItem("hector-history") || "[]");
+            const newRound = {
+              name: roundName || "Unnamed Round",
+              date: new Date().toISOString().slice(0, 10),
+              holeCount,
+              scores
+            };
+            localStorage.setItem("hector-history", JSON.stringify([...savedRounds, newRound]));
+            alert("Round saved!");
+          }}
+        >
+          Save Round
+        </button>
       <div className="flex justify-end mb-4 max-w-xl mx-auto">
         <button
           className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
@@ -128,6 +145,16 @@ export default function GolfScoreApp() {
         </button>
       </div>
       <div className="max-w-xl mx-auto">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-yellow-800 mb-2">Previous Rounds</h2>
+          <ul className="text-sm text-yellow-900 space-y-1">
+            {JSON.parse(localStorage.getItem("hector-history") || "[]").map((r: any, idx: number) => (
+              <li key={idx} className="border border-yellow-200 rounded px-3 py-2 bg-white shadow-sm">
+                <strong>{r.name}</strong> — {r.date}, {r.holeCount} holes, {Object.keys(r.scores).length} players
+              </li>
+            ))}
+          </ul>
+        </div>
         <h1 className="text-3xl font-extrabold text-yellow-800 text-center mb-1">{roundName || "Unnamed Round"}</h1>
         <p className="text-md text-yellow-600 text-center mb-5">Hole {hole} / {holeCount}</p>
         {players.map((player) => (
