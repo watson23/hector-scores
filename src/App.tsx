@@ -231,13 +231,14 @@ export default function GolfScoreApp() {
                       <td key={i} className={`px-2 py-1 text-center ${style}`}>{scores[player][i] || ""}</td>
                     );
                   })}
-                  <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
+                  <td className="px-2 py-1 text-center font-bold">{isNaN(totalScore(player)) ? 0 : totalScore(player)}</td>
                   <td className="px-2 py-1 text-center font-bold">{(() => {
-                    const played = scores[player].map(s => parseInt(s)).filter(n => !isNaN(n));
-                    const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
-                    const diff = played.reduce((sum, val) => sum + val, 0) - parPlayed;
-                    return diff > 0 ? `+${diff}` : diff;
-                  })()}</td>
+  const played = scores[player].map(s => parseInt(s)).filter(n => !isNaN(n));
+  if (played.length === 0) return "–";
+  const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
+  const diff = played.reduce((sum, val) => sum + val, 0) - parPlayed;
+  return diff > 0 ? `+${diff}` : diff;
+})()}</td>
                 </tr>
               ))}
             </tbody>
