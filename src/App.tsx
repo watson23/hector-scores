@@ -196,9 +196,9 @@ export default function GolfScoreApp() {
               {players.map((player) => (
                 <tr key={player} className="border-t">
                   <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
-                  {scores[player].map((score, i) => (
-                    <td key={i} className="px-2 py-1 text-center">{score}</td>
-                  ))}
+                  {[...Array(holeCount)].map((_, i) => (
+                  <td key={i} className="px-2 py-1 text-center">{scores[player][i]}</td>
+                ))}
                   <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
                 </tr>
               ))}
