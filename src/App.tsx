@@ -128,6 +128,12 @@ export default function GolfScoreApp() {
     );
   }
 
+  players.forEach((p) => {
+    if (scores[p]?.length < holeCount) {
+      scores[p] = [...scores[p], ...Array(holeCount - scores[p].length).fill("")];
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
       <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
