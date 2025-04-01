@@ -9,6 +9,12 @@ export default function GolfScoreApp() {
   const [holeCount, setHoleCount] = useState(18);
   const [started, setStarted] = useState(false);
   const [roundName, setRoundName] = useState("");
+  const [course, setCourse] = useState("hirsala");
+
+  const courses: Record<string, number[]> = {
+    hirsala: [4, 3, 4, 5, 4, 4, 4, 3, 5, 4, 4, 5, 4, 3, 5, 3, 4, 5],
+    tapiola: [5, 3, 4, 3, 5, 4, 4, 4, 4, 4, 5, 4, 3, 4, 4, 4, 4, 4],
+  };
 
   useEffect(() => {
     const savedRoundName = localStorage.getItem("hector-round-name");
@@ -67,16 +73,26 @@ export default function GolfScoreApp() {
         </div>
 
         <div className="mb-6 w-full max-w-md">
-          <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
-          <select
-            className="border border-yellow-500 rounded px-3 py-2 w-full"
-            value={holeCount}
-            onChange={(e) => setHoleCount(Number(e.target.value))}
-          >
-            <option value={9}>9</option>
-            <option value={18}>18</option>
-          </select>
-        </div>
+  <label className="block text-yellow-800 font-medium mb-1">Select course:</label>
+  <select
+    className="border border-yellow-500 rounded px-3 py-2 w-full mb-4"
+    value={course}
+    onChange={(e) => setCourse(e.target.value)}
+  >
+    <option value="hirsala">Hirsala Golf</option>
+    <option value="tapiola">Tapiola Golf</option>
+  </select>
+
+  <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
+  <select
+    className="border border-yellow-500 rounded px-3 py-2 w-full"
+    value={holeCount}
+    onChange={(e) => setHoleCount(Number(e.target.value))}
+  >
+    <option value={9}>9</option>
+    <option value={18}>18</option>
+  </select>
+</div>
 
         <div className="flex mb-4 w-full max-w-md">
           <input
