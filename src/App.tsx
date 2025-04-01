@@ -136,7 +136,7 @@ export default function GolfScoreApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 p-6">
-      <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
+      <div className="flex justify-center gap-4 mb-6 max-w-xl mx-auto">
         <button
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
           onClick={() => {
@@ -168,13 +168,13 @@ export default function GolfScoreApp() {
       </div>
 
       <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none">
-        <h1 className="text-3xl font-extrabold text-yellow-800 text-center mb-1">{roundName || "Unnamed Round"}</h1>
+        <h1 className="text-3xl font-extrabold text-purple-200 text-center mb-1">{roundName || "Unnamed Round"}</h1>
         <p className="text-md text-purple-400 text-center mb-5">Hole {hole} / {holeCount}</p>
 
         {players.map((player) => (
           <div key={player} className="bg-gray-50 border border-purple-300 shadow-sm rounded-3xl p-6 mb-6 max-w-xl mx-auto">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-purple-200">{player}</span>
+              <span className="font-medium text-purple-800">{player}</span>
               <input
                 type="text"
                 inputMode="numeric"
@@ -195,8 +195,8 @@ export default function GolfScoreApp() {
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
         </div>
 
-        <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Scorecard</h2>
-        <div className="bg-white rounded-lg shadow w-full xl:overflow-visible">
+        <h2 className="text-2xl font-semibold mt-8 mb-3 text-purple-200 text-center">Scorecard</h2>
+        <div className="bg-white rounded-3xl shadow p-4 max-w-6xl mx-auto xl:overflow-visible">
           <table className="min-w-fit text-sm">
             <thead className="bg-purple-800 text-white">
               <tr>
