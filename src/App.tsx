@@ -111,24 +111,8 @@ export default function GolfScoreApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
-      <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
-        <button
-          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
-          onClick={() => {
-            const savedRounds = JSON.parse(localStorage.getItem("hector-history") || "[]");
-            const newRound = {
-              name: roundName || "Unnamed Round",
-              date: new Date().toISOString().slice(0, 10),
-              holeCount,
-              scores
-            };
-            localStorage.setItem("hector-history", JSON.stringify([...savedRounds, newRound]));
-            alert("Round saved!");
-          }}
-        >
-          Save Round
-        </button>
-      <div className="flex justify-end mb-4 max-w-xl mx-auto">
+      <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">$1</div>
+<div className="flex justify-end mb-4 max-w-xl mx-auto">
         <button
           className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
           onClick={() => {
