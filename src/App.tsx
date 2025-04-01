@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./index.css";
 
-
 export default function GolfScoreApp() {
   const [players, setPlayers] = useState<string[]>([]);
   const [playerInput, setPlayerInput] = useState("");
