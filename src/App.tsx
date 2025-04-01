@@ -51,14 +51,17 @@ export default function GolfScoreApp() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
+      <div className="min-h-screen bg-gray-900 p-6">
         <div className="max-w-md mx-auto">
-          <h1 className="text-3xl font-bold text-yellow-800 mb-6 text-center">Hector Scores</h1>
+          <div className="flex flex-col items-center mb-6">
+  <img src="/icons/icon-192x192.png" alt="Hector Icon" className="w-16 h-16 mb-2" />
+  <h1 className="text-3xl font-bold text-purple-300 text-center">Hector Scores</h1>
+</div>
 
           <div className="mb-6 w-full max-w-md">
-            <label className="block text-yellow-800 font-medium mb-1">Select course:</label>
+            <label className="block text-purple-800 font-medium mb-1">Select course:</label>
             <select
-              className="border border-yellow-500 rounded px-3 py-2 w-full mb-4"
+              className="border border-purple-400 rounded px-3 py-2 w-full mb-4"
               value={course}
               onChange={(e) => setCourse(e.target.value)}
             >
@@ -93,11 +96,11 @@ export default function GolfScoreApp() {
               type="text"
               value={playerInput}
               onChange={(e) => setPlayerInput(e.target.value)}
-              className="border border-yellow-400 rounded-l px-3 py-2 w-full"
+              className="border border-purple-400 rounded-l px-3 py-2 w-full"
               placeholder="Add player"
             />
             <button
-              className="bg-yellow-500 text-white px-4 py-2 rounded-r hover:bg-yellow-600"
+              className="bg-purple-600 text-white px-4 py-2 rounded-r hover:bg-purple-700"
               onClick={() => {
                 if (playerInput.trim() && !players.includes(playerInput.trim())) {
                   setPlayers([...players, playerInput.trim()]);
@@ -135,7 +138,7 @@ export default function GolfScoreApp() {
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
       <div className="flex justify-end mb-4 max-w-xl mx-auto gap-2">
         <button
-          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 shadow"
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
           onClick={() => {
             const savedRounds = JSON.parse(localStorage.getItem("hector-history") || "[]");
             const newRound = {
@@ -166,17 +169,17 @@ export default function GolfScoreApp() {
 
       <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none">
         <h1 className="text-3xl font-extrabold text-yellow-800 text-center mb-1">{roundName || "Unnamed Round"}</h1>
-        <p className="text-md text-yellow-600 text-center mb-5">Hole {hole} / {holeCount}</p>
+        <p className="text-md text-purple-400 text-center mb-5">Hole {hole} / {holeCount}</p>
 
         {players.map((player) => (
-          <div key={player} className="bg-white border border-yellow-200 shadow-sm rounded-2xl p-4 mb-4">
+          <div key={player} className="bg-white border border-purple-300 shadow-sm rounded-2xl p-4 mb-4">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-yellow-900">{player}</span>
+              <span className="font-medium text-purple-200">{player}</span>
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="border border-yellow-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="border border-purple-300 rounded px-3 py-2 w-20 text-center focus:outline-none focus:ring-2 focus:ring-purple-400"
                 value={scores[player][hole - 1]}
                 onChange={(e) => updateScore(player, e.target.value)}
               />
@@ -195,7 +198,7 @@ export default function GolfScoreApp() {
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Scorecard</h2>
         <div className="bg-white rounded-lg shadow w-full xl:overflow-visible">
           <table className="min-w-fit text-sm">
-            <thead className="bg-yellow-100 text-yellow-800">
+            <thead className="bg-purple-100 text-yellow-800">
               <tr>
                 <th className="px-2 py-1 text-left">Player</th>
                 {Array.from({ length: Number(holeCount) }).map((_, i) => (
