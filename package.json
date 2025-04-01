@@ -1,4 +1,3 @@
-
 {
   "name": "hector-scores",
   "version": "0.0.1",
@@ -15,6 +14,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^1.0.0"
   }
 }
