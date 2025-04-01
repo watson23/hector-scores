@@ -5,6 +5,7 @@ export default function GolfScoreApp() {
   const [players, setPlayers] = useState<string[]>([]);
   const [playerInput, setPlayerInput] = useState("");
   const [scores, setScores] = useState<{ [player: string]: number[] }>({});
+  const [holeCount, setHoleCount] = useState(18);
   const [hole, setHole] = useState(1);
   const [started, setStarted] = useState(false);
 
@@ -29,7 +30,7 @@ export default function GolfScoreApp() {
     if (playerInput.trim() === "") return;
     const newPlayers = [...players, playerInput.trim()];
     setPlayers(newPlayers);
-    setScores((prev) => ({ ...prev, [playerInput.trim()]: Array(18).fill("") }));
+    setScores((prev) => ({ ...prev, [playerInput.trim()]: Array(holeCount).fill("") }));
     setPlayerInput("");
   };
 
@@ -47,6 +48,17 @@ export default function GolfScoreApp() {
 
   if (!started) {
     return (
+      <div className="mb-4">
+        <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
+        <select
+          className="border border-yellow-500 rounded px-3 py-2"
+          value={holeCount}
+          onChange={(e) => setHoleCount(Number(e.target.value))}
+        >
+          <option value={9}>9</option>
+          <option value={18}>18</option>
+        </select>
+      </div>,
       <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
         <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
         <h1 className="text-4xl font-bold mb-6 text-yellow-700">Hector Scores</h1>
@@ -93,7 +105,7 @@ export default function GolfScoreApp() {
         ))}
         <div className="flex justify-between mt-6">
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= 18} onClick={() => setHole(hole + 1)}>Next</button>
+          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
         </div>
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Total Scores</h2>
         <ul className="bg-white rounded-lg p-4 shadow">
