@@ -167,10 +167,11 @@ export default function GolfScoreApp() {
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none">
+      <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none px-2">
         <h1 className="text-3xl font-extrabold text-purple-200 text-center mb-1">{roundName || "Unnamed Round"}</h1>
         <p className="text-md text-purple-400 text-center mb-5">Hole {hole} / {holeCount}</p>
 
+        <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">Hole {hole}</h2>
         {players.map((player) => (
           <div key={player} className="bg-gray-50 border border-purple-300 shadow-sm rounded-3xl p-6 mb-6 max-w-xl mx-auto">
             <div className="flex justify-between items-center mb-2">
