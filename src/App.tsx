@@ -15,7 +15,7 @@ export default function GolfScoreApp() {
     hirsala: [4, 3, 4, 5, 4, 4, 4, 3, 5, 4, 4, 5, 4, 3, 5, 3, 4, 5],
     tapiola: [5, 3, 4, 3, 5, 4, 4, 4, 4, 4, 5, 4, 3, 4, 4, 4, 4, 4],
     vuosaari: [4, 4, 3, 5, 4, 4, 4, 4, 5, 5, 4, 5, 3, 4, 3, 4, 3, 4],
-    gumböle: [5, 3, 4, 4, 3, 4, 3, 5, 5, 4, 4, 4, 3, 4, 3, 5, 4, 3]
+    gumböle: [5, 3, 4, 4, 3, 4, 3, 5, 5, 4, 4, 4, 3, 4, 3, 5, 4, 3],
   };
 
   useEffect(() => {
@@ -69,6 +69,8 @@ export default function GolfScoreApp() {
             >
               <option value="hirsala">Hirsala Golf</option>
               <option value="tapiola">Tapiola Golf</option>
+              <option value="vuosaari">Vuosaari Golf</option>
+              <option value="gumböle">Gumböle Golf</option>
             </select>
 
             <label className="block text-purple-200 font-medium mb-1">Select number of holes:</label>
@@ -147,6 +149,7 @@ export default function GolfScoreApp() {
               name: roundName || "Unnamed Round",
               date: new Date().toISOString().slice(0, 10),
               holeCount,
+              course,
               scores
             };
             localStorage.setItem("hector-history", JSON.stringify([...savedRounds, newRound]));
@@ -171,7 +174,7 @@ export default function GolfScoreApp() {
 
       <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none px-2">
         <h1 className="text-3xl font-extrabold text-purple-200 text-center mb-1">{roundName || "Unnamed Round"}</h1>
-        <p className="text-md text-purple-400 text-center mb-5">Hole {hole} / {holeCount}</p>
+        <p className="text-md text-purple-400 text-center mb-5">{course.charAt(0).toUpperCase() + course.slice(1)} – Hole {hole} / {holeCount}</p>
 
         <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">Hole {hole}</h2>
         {players.map((player) => (
