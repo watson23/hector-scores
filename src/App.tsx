@@ -64,8 +64,7 @@ export default function GolfScoreApp() {
           value={roundName}
           onChange={(e) => setRoundName(e.target.value)}
         />
-      </div> bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
-        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
+"/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
         <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
 
         <div className="mb-6 w-full max-w-md">
