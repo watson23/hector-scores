@@ -63,9 +63,7 @@ export default function GolfScoreApp() {
           <option value={18}>18</option>
         </select>
       </div>
-      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
-        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
-        <h1 className="text-4xl font-bold mb-6 text-yellow-700">Hector Scores</h1>
+      
         <div className="flex mb-4 w-full max-w-md">
           <input
             className="border border-yellow-500 rounded-l px-4 py-2 w-full focus:outline-none"
@@ -80,8 +78,7 @@ export default function GolfScoreApp() {
             <li key={p}>{p}</li>
           ))}
         </ul>
-        {players.length > 0 && <button className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md" onClick={() => setStarted(true)}>Start Round</button>}
-      </div>
+{players.length > 0 && <button className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md" onClick={() => setStarted(true)}>Start Round</button>}
     );
   }
 
