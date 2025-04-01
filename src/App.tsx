@@ -208,6 +208,13 @@ export default function GolfScoreApp() {
               </tr>
             </thead>
             <tbody>
+              <tr className="bg-gray-50 text-gray-700 font-semibold">
+                <td className="px-2 py-1 text-left">Par</td>
+                {[...Array(holeCount)].map((_, i) => (
+                  <td key={i} className="px-2 py-1 text-center">{courses[course][i]}</td>
+                ))}
+                <td className="px-2 py-1 text-center">{courses[course].slice(0, holeCount).reduce((sum, val) => sum + val, 0)}</td>
+              </tr>
               {players.map((player) => (
                 <tr key={player} className="border-t">
                   <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
