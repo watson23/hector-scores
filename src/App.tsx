@@ -8,8 +8,12 @@ export default function GolfScoreApp() {
   const [hole, setHole] = useState(1);
   const [holeCount, setHoleCount] = useState(18);
   const [started, setStarted] = useState(false);
+  const [roundName, setRoundName] = useState("");
 
   useEffect(() => {
+    const savedRoundName = localStorage.getItem("hector-round-name");
+    if (savedRoundName) setRoundName(savedRoundName);
+
     const savedPlayers = localStorage.getItem("hector-players");
     const savedScores = localStorage.getItem("hector-scores");
     if (savedPlayers && savedScores) {
@@ -52,6 +56,19 @@ export default function GolfScoreApp() {
         <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
         <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
 
+        <div className="mb-4 w-full max-w-md">
+          <label className="block text-yellow-800 font-medium mb-1">Name this round (optional):</label>
+          <input
+            className="border border-yellow-500 rounded px-3 py-2 w-full"
+            placeholder="e.g. Friday with Ville & Laura"
+            value={roundName}
+            onChange={(e) => setRoundName(e.target.value)}
+          />
+        </div>
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
+        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
+        <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
+
         <div className="mb-6 w-full max-w-md">
           <label className="block text-yellow-800 font-medium mb-1">Select number of holes:</label>
           <select
@@ -83,7 +100,10 @@ export default function GolfScoreApp() {
         {players.length > 0 && (
           <button
             className="px-6 py-2 bg-yellow-700 text-white rounded hover:bg-yellow-800 shadow-md"
-            onClick={() => setStarted(true)}
+            onClick={() => {
+              localStorage.setItem("hector-round-name", roundName);
+              setStarted(true);
+            }}
           >
             Start Round
           </button>
@@ -104,13 +124,15 @@ export default function GolfScoreApp() {
             setStarted(false);
             localStorage.removeItem("hector-players");
             localStorage.removeItem("hector-scores");
+            localStorage.removeItem("hector-round-name");
           }}
         >
           New Round
         </button>
       </div>
       <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-extrabold mb-6 text-yellow-800 text-center">Hole {hole}</h1>
+        <h1 className="text-3xl font-extrabold text-yellow-800 text-center mb-1">{roundName || "Unnamed Round"}</h1>
+        <p className="text-md text-yellow-600 text-center mb-5">Hole {hole} / {holeCount}</p>
         {players.map((player) => (
           <div key={player} className="bg-white border border-yellow-200 shadow-sm rounded-2xl p-4 mb-4">
             <div className="flex justify-between items-center mb-2">
