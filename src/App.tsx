@@ -107,15 +107,31 @@ export default function GolfScoreApp() {
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
           <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
         </div>
-        <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Total Scores</h2>
-        <ul className="bg-white rounded-lg p-4 shadow">
-          {players.map((player) => (
-            <li key={player} className="mb-2 flex justify-between border-b pb-1">
-              <span>{player}</span>
-              <span className="font-bold">{totalScore(player)}</span>
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-2xl font-semibold mt-8 mb-3 text-yellow-800 text-center">Scorecard</h2>
+        <div className="overflow-auto bg-white rounded-lg shadow">
+          <table className="min-w-full text-sm">
+            <thead className="bg-yellow-100 text-yellow-800">
+              <tr>
+                <th className="px-2 py-1 text-left">Player</th>
+                {[...Array(holeCount)].map((_, i) => (
+                  <th key={i} className="px-2 py-1 text-center">{i + 1}</th>
+                ))}
+                <th className="px-2 py-1 text-center">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {players.map((player) => (
+                <tr key={player} className="border-t">
+                  <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
+                  {scores[player].map((score, i) => (
+                    <td key={i} className="px-2 py-1 text-center">{score}</td>
+                  ))}
+                  <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
