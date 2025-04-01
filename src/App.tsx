@@ -214,40 +214,41 @@ export default function GolfScoreApp() {
               </tr>
             </thead>
             <tbody>
-            {players.map((player) => {
-              if (scores[player].length < holeCount) {
-                scores[player] = [...scores[player], ...Array(holeCount - scores[player].length).fill("")];
-              }
-              return (
-                <tr key={player} className="border-t">
-                  <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
-                  {[...Array(holeCount)].map((_, i) => {
-                    const val = parseInt(scores[player][i]);
-                    const par = courses[course][i];
-                    let style = "";
-                    if (!isNaN(val)) {
-                      if (val < par) style = "bg-red-100 text-red-800";
-                      else if (val === par) style = "";
-                      else if (val === par + 1) style = "bg-blue-100 text-blue-800";
-                      else if (val >= par + 2) style = "bg-blue-200 text-blue-900";
-                    }
-                    return (
-                      <td key={i} className={`px-2 py-1 text-center ${style}`}>{scores[player][i] || ""}</td>
-                    );
-                  })}
-                  <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
-                  <td className="px-2 py-1 text-center font-bold">{
-  (() => {
-    const played = scores[player]?.slice(0, holeCount).map((s) => parseInt(s)).filter(n => !isNaN(n));
-    if (!played || played.length === 0) return "–";
-    const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
-    const scorePlayed = played.reduce((sum, val) => sum + val, 0);
-    const diff = scorePlayed - parPlayed;
-    return diff > 0 ? `+${diff}` : diff;
-  })()
-}</td>
-                </tr>
-              ))}
+              {players.map((player) => {
+                if (scores[player].length < holeCount) {
+                  scores[player] = [...scores[player], ...Array(holeCount - scores[player].length).fill("")];
+                }
+                return (
+                  <tr key={player} className="border-t">
+                    <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
+                    {Array.from({ length: Number(holeCount) }).map((_, i) => {
+                      const val = parseInt(scores[player][i]);
+                      const par = courses[course][i];
+                      let style = "";
+                      if (!isNaN(val)) {
+                        if (val < par) style = "bg-red-100 text-red-800";
+                        else if (val === par) style = "";
+                        else if (val === par + 1) style = "bg-blue-100 text-blue-800";
+                        else if (val >= par + 2) style = "bg-blue-200 text-blue-900";
+                      }
+                      return (
+                        <td key={i} className={`px-2 py-1 text-center ${style}`}>{scores[player][i] || ""}</td>
+                      );
+                    })}
+                    <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
+                    <td className="px-2 py-1 text-center font-bold">{
+                      (() => {
+                        const played = scores[player]?.slice(0, holeCount).map((s) => parseInt(s)).filter(n => !isNaN(n));
+                        if (!played || played.length === 0) return "–";
+                        const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
+                        const scorePlayed = played.reduce((sum, val) => sum + val, 0);
+                        const diff = scorePlayed - parPlayed;
+                        return diff > 0 ? `+${diff}` : diff;
+                      })()
+                    }</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
