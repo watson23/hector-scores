@@ -196,9 +196,7 @@ export default function GolfScoreApp() {
   />
 </div>
             </div>
-            <div className="text-sm text-gray-500">
-              Scores: {scores[player].map((s, i) => s ? `${i + 1}:${s}` : null).filter(Boolean).join(", ") || "-"}
-            </div>
+            
           </div>
         ))}
 
@@ -208,7 +206,7 @@ export default function GolfScoreApp() {
         </div>
 
         <h2 className="text-2xl font-semibold mt-8 mb-3 text-purple-200 text-center">Scorecard</h2>
-        <div className="bg-white rounded-3xl shadow p-6 max-w-5xl mx-auto xl:overflow-visible">
+        <div className="bg-white rounded-3xl shadow p-6 max-w-5xl mx-auto xl:overflow-visible overflow-x-auto">
           <table className="min-w-fit text-sm">
             <thead className="bg-purple-800 text-white">
               <tr>
