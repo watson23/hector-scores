@@ -128,11 +128,14 @@ export default function GolfScoreApp() {
     );
   }
 
-  players.forEach((p) => {
-    if (scores[p]?.length < holeCount) {
-      scores[p] = [...scores[p], ...Array(holeCount - scores[p].length).fill("")];
-    }
-  });
+  useEffect(() => {
+    const filledScores: typeof scores = {};
+    players.forEach((p) => {
+      const current = scores[p] || [];
+      filledScores[p] = [...current, ...Array(Math.max(0, holeCount - current.length)).fill("")];
+    });
+    setScores(filledScores);
+  }, [players, holeCount]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6">
