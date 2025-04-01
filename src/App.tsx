@@ -53,7 +53,11 @@ export default function GolfScoreApp() {
   };
 
   const totalScore = (player: string) => {
-    return (scores[player]?.slice(0, holeCount).reduce((sum, val) => sum + (parseInt(val) || 0), 0)) || 0;
+    const relevantScores = scores[player]?.slice(0, holeCount) || [];
+    return relevantScores.reduce((sum, val) => {
+      const parsed = parseInt(val);
+      return sum + (isNaN(parsed) ? 0 : parsed);
+    }, 0);
   };
 
   if (!started) {
