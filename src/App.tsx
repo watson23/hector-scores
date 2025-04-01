@@ -52,9 +52,7 @@ export default function GolfScoreApp() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white p-6 flex flex-col items-center">
-        <img src="/icons/icon-192x192.png" alt="Hector Logo" className="w-16 h-16 mb-2" />
-        <h1 className="text-4xl font-bold mb-4 text-yellow-700">Hector Scores</h1>
+      
 
         <div className="mb-4 w-full max-w-md">
           <label className="block text-yellow-800 font-medium mb-1">Name this round (optional):</label>
