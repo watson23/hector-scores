@@ -214,7 +214,11 @@ export default function GolfScoreApp() {
               </tr>
             </thead>
             <tbody>
-              {players.map((player) => (
+            {players.map((player) => {
+              if (scores[player].length < holeCount) {
+                scores[player] = [...scores[player], ...Array(holeCount - scores[player].length).fill("")];
+              }
+              return (
                 <tr key={player} className="border-t">
                   <td className="px-2 py-1 font-medium text-yellow-900 whitespace-nowrap">{player}</td>
                   {[...Array(holeCount)].map((_, i) => {
@@ -231,14 +235,17 @@ export default function GolfScoreApp() {
                       <td key={i} className={`px-2 py-1 text-center ${style}`}>{scores[player][i] || ""}</td>
                     );
                   })}
-                  <td className="px-2 py-1 text-center font-bold">{isNaN(totalScore(player)) ? 0 : totalScore(player)}</td>
-                  <td className="px-2 py-1 text-center font-bold">{(() => {
-  const played = scores[player].map(s => parseInt(s)).filter(n => !isNaN(n));
-  if (played.length === 0) return "–";
-  const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
-  const diff = played.reduce((sum, val) => sum + val, 0) - parPlayed;
-  return diff > 0 ? `+${diff}` : diff;
-})()}</td>
+                  <td className="px-2 py-1 text-center font-bold">{totalScore(player)}</td>
+                  <td className="px-2 py-1 text-center font-bold">{
+  (() => {
+    const played = scores[player]?.slice(0, holeCount).map((s) => parseInt(s)).filter(n => !isNaN(n));
+    if (!played || played.length === 0) return "–";
+    const parPlayed = courses[course].slice(0, played.length).reduce((sum, val) => sum + val, 0);
+    const scorePlayed = played.reduce((sum, val) => sum + val, 0);
+    const diff = scorePlayed - parPlayed;
+    return diff > 0 ? `+${diff}` : diff;
+  })()
+}</td>
                 </tr>
               ))}
             </tbody>
