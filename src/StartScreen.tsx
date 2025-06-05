@@ -77,10 +77,14 @@ const StartScreen: React.FC<StartScreenProps> = ({
             value={course}
             onChange={(e) => setCourse(e.target.value)}
           >
-            <option value="hirsala">Hirsala Golf (74.4/134)</option>
-            <option value="tapiola">Tapiola Golf (72.8/127)</option>
-            <option value="vuosaari">Vuosaari Golf (74.4/136)</option>
-            <option value="gumböle">Gumböle Golf (69.0/123)</option>
+            <option value="hirsala">Hirsala Golf Yellow (71.2/128)</option>
+            <option value="tapiola">Tapiola Golf 57 (70.5/123)</option>
+            <option value="vuosaari">Vuosaari Golf 58 (72.0/131)</option>
+            <option value="gumböle">Gumböle Golf 52 (67.8/121)</option>
+            <option value="pickala_forest">Pickala Forest 59 (71.3/138)</option>
+            <option value="pickala_park">Pickala Park 60 (71.9/133)</option>
+            <option value="pickala_seaside">Pickala Seaside 57 (71.0/128)</option>
+            
           </select>
           
           <label className="block text-purple-200 font-medium mb-1">Select number of holes:</label>
