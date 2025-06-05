@@ -49,6 +49,24 @@ export default function GolfScoreApp() {
       handicapIndex: [7, 15, 3, 5, 13, 11, 17, 9, 1, 8, 14, 10, 16, 4, 12, 6, 2, 18],
       rating: 69.0,
       slope: 123
+    },
+    pickala_park: {
+      par: [5, 4, 3, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 5, 4, 4],
+      handicapIndex: [14, 1, 16, 17, 3, 12, 15, 10, 6, 5, 18, 9, 4, 11, 13, 8, 2, 7],
+      rating: 71.9,
+      slope: 133
+    },
+    pickala_forest: {
+      par: [4, 4, 4, 3, 5, 4, 5, 4, 3, 5, 3, 4, 4, 5, 4, 3, 4, 4],
+      handicapIndex: [6, 4, 11, 14, 1, 16, 7, 15, 17, 3, 18, 5, 12, 10, 2, 13, 9, 8],
+      rating: 71.3,
+      slope: 138
+    },
+    pickala_seaside: {
+      par: [4, 3, 5, 4, 4, 4, 5, 4, 3, 4, 4, 3, 5, 4, 5, 3, 4, 4],
+      handicapIndex: [4, 12, 16, 1, 6, 5, 2, 8, 14, 13, 10, 15, 3, 7, 11, 17, 9, 18],
+      rating: 71.0,
+      slope: 128
     }
   };
 
