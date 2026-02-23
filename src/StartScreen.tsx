@@ -22,6 +22,7 @@ interface StartScreenProps {
   setScores: (scores: { [playerName: string]: string[] }) => void;
   holeCountOptions?: number[];
   onStart: () => void;
+  onShowHistory?: () => void;
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -40,7 +41,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
   scores,
   setScores,
   holeCountOptions = [9, 18],
-  onStart
+  onStart,
+  onShowHistory
 }) => {
   const addPlayer = () => {
     const name = playerInput.trim();
@@ -163,6 +165,15 @@ const StartScreen: React.FC<StartScreenProps> = ({
             onClick={onStart}
           >
             Start Round
+          </button>
+        )}
+
+        {onShowHistory && (
+          <button
+            className="px-6 py-2 mt-4 bg-gray-700 text-purple-300 rounded hover:bg-gray-600 shadow-md w-full"
+            onClick={onShowHistory}
+          >
+            📋 Round History
           </button>
         )}
       </div>

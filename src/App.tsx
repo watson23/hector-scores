@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import StartScreen from "./StartScreen";
 import ScoreInput from "./ScoreInput";
 import Scorecard from "./Scorecard";
+import RoundHistory from "./RoundHistory";
 import "./index.css";
 
 export interface Player {
   name: string;
   handicap: number;
 }
+
+type AppView = "start" | "playing" | "history";
 
 export default function GolfScoreApp() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -16,7 +19,7 @@ export default function GolfScoreApp() {
   const [scores, setScores] = useState<{ [playerName: string]: string[] }>({});
   const [hole, setHole] = useState(1);
   const [holeCount, setHoleCount] = useState(18);
-  const [started, setStarted] = useState(false);
+  const [view, setView] = useState<AppView>("start");
   const [roundName, setRoundName] = useState("");
   const [course, setCourse] = useState("hirsala");
 
@@ -112,7 +115,25 @@ export default function GolfScoreApp() {
     }, 0);
   };
 
-  if (!started) {
+  if (view === "history") {
+    return (
+      <RoundHistory
+        onBack={() => setView("start")}
+        courses={courses}
+        onLoadRound={(round) => {
+          setCourse(round.course);
+          setHoleCount(round.holeCount);
+          setRoundName(round.name);
+          setPlayers(round.players);
+          setScores(round.scores);
+          setHole(1);
+          setView("playing");
+        }}
+      />
+    );
+  }
+
+  if (view === "start") {
     return (
       <StartScreen
         course={course}
@@ -129,7 +150,8 @@ export default function GolfScoreApp() {
         setPlayers={setPlayers}
         scores={scores}
         setScores={setScores}
-        onStart={() => setStarted(true)}
+        onStart={() => setView("playing")}
+        onShowHistory={() => setView("history")}
       />
     );
   }
@@ -161,7 +183,7 @@ export default function GolfScoreApp() {
             setPlayers([]);
             setScores({});
             setHole(1);
-            setStarted(false);
+            setView("start");
             setRoundName("");
           }}
         >
