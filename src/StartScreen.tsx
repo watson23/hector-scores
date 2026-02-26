@@ -1,10 +1,7 @@
 import React, { useState } from "react";
+import { Player, Scores } from "./types";
+import { courseLabels } from "./data/courses";
 import { getProfiles, saveProfile, deleteProfile, PlayerProfile } from "./playerProfiles";
-
-interface Player {
-  name: string;
-  handicap: number;
-}
 
 interface StartScreenProps {
   course: string;
@@ -13,14 +10,10 @@ interface StartScreenProps {
   setHoleCount: (count: number) => void;
   roundName: string;
   setRoundName: (name: string) => void;
-  playerInput: string;
-  setPlayerInput: (name: string) => void;
-  playerHandicap: string;
-  setPlayerHandicap: (handicap: string) => void;
   players: Player[];
   setPlayers: (players: Player[]) => void;
-  scores: { [playerName: string]: string[] };
-  setScores: (scores: { [playerName: string]: string[] }) => void;
+  scores: Scores;
+  setScores: (scores: Scores) => void;
   holeCountOptions?: number[];
   onStart: () => void;
   onShowHistory?: () => void;
@@ -33,18 +26,18 @@ const StartScreen: React.FC<StartScreenProps> = ({
   setHoleCount,
   roundName,
   setRoundName,
-  playerInput,
-  setPlayerInput,
-  playerHandicap,
-  setPlayerHandicap,
   players,
   setPlayers,
   scores,
   setScores,
   holeCountOptions = [9, 18],
   onStart,
-  onShowHistory
+  onShowHistory,
 }) => {
+  // Player input state is local — only needed on this screen
+  const [playerInput, setPlayerInput] = useState("");
+  const [playerHandicap, setPlayerHandicap] = useState("");
+
   const [savedProfiles, setSavedProfiles] = useState<PlayerProfile[]>(getProfiles);
   const [editingProfile, setEditingProfile] = useState<string | null>(null);
   const [editHandicap, setEditHandicap] = useState("");
@@ -53,7 +46,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
     const name = playerInput.trim();
     const hcp = parseFloat(playerHandicap) || 0;
 
-    if (name && !players.some(p => p.name === name)) {
+    if (name && !players.some((p) => p.name === name)) {
       const newPlayer: Player = { name, handicap: hcp };
       setPlayers([...players, newPlayer]);
       setScores({ ...scores, [name]: Array(holeCount).fill("") });
@@ -66,14 +59,14 @@ const StartScreen: React.FC<StartScreenProps> = ({
   };
 
   const addFromProfile = (profile: PlayerProfile) => {
-    if (!players.some(p => p.name === profile.name)) {
+    if (!players.some((p) => p.name === profile.name)) {
       setPlayers([...players, { name: profile.name, handicap: profile.handicap }]);
       setScores({ ...scores, [profile.name]: Array(holeCount).fill("") });
     }
   };
 
   const removePlayer = (playerName: string) => {
-    setPlayers(players.filter(p => p.name !== playerName));
+    setPlayers(players.filter((p) => p.name !== playerName));
     const newScores = { ...scores };
     delete newScores[playerName];
     setScores(newScores);
@@ -94,8 +87,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
     saveProfile({ name, handicap: hcp });
     setSavedProfiles(getProfiles());
     // Also update if player is already in the round
-    if (players.some(p => p.name === name)) {
-      setPlayers(players.map(p => p.name === name ? { ...p, handicap: hcp } : p));
+    if (players.some((p) => p.name === name)) {
+      setPlayers(players.map((p) => (p.name === name ? { ...p, handicap: hcp } : p)));
     }
     setEditingProfile(null);
   };
@@ -113,34 +106,43 @@ const StartScreen: React.FC<StartScreenProps> = ({
         {/* Round Setup Card */}
         <div className="bg-slate-900 rounded-2xl p-4 mb-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">Course</label>
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">
+              Course
+            </label>
             <select
               className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
               value={course}
               onChange={(e) => setCourse(e.target.value)}
             >
-              <option value="hirsala">Hirsala Golf (74.4/134)</option>
-              <option value="tapiola">Tapiola Golf (72.8/127)</option>
-              <option value="vuosaari">Vuosaari Golf (74.4/136)</option>
-              <option value="gumböle">Gumböle Golf (69.0/123)</option>
+              {Object.entries(courseLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">Holes</label>
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">
+              Holes
+            </label>
             <select
               className="bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
               value={holeCount}
               onChange={(e) => setHoleCount(Number(e.target.value))}
             >
               {holeCountOptions.map((count) => (
-                <option key={count} value={count}>{count} holes</option>
+                <option key={count} value={count}>
+                  {count} holes
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">Round name</label>
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">
+              Round name
+            </label>
             <input
               type="text"
               value={roundName}
@@ -154,20 +156,39 @@ const StartScreen: React.FC<StartScreenProps> = ({
         {/* Saved Players — quick add */}
         {savedProfiles.length > 0 && (
           <div className="bg-slate-900 rounded-2xl p-4 mb-4">
-            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-3">Saved Players</label>
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-3">
+              Saved Players
+            </label>
             <div className="space-y-2">
               {savedProfiles.map((profile) => {
-                const isInRound = players.some(p => p.name === profile.name);
+                const isInRound = players.some((p) => p.name === profile.name);
                 const isEditing = editingProfile === profile.name;
 
                 return (
-                  <div key={profile.name} className={`flex items-center justify-between rounded-xl px-4 py-3 ${isInRound ? 'bg-emerald-900/30 border border-emerald-800' : 'bg-slate-800'}`}>
+                  <div
+                    key={profile.name}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 ${
+                      isInRound ? "bg-emerald-900/30 border border-emerald-800" : "bg-slate-800"
+                    }`}
+                  >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${isInRound ? 'bg-emerald-800 text-emerald-300' : 'bg-slate-700 text-slate-400'}`}>
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${
+                          isInRound
+                            ? "bg-emerald-800 text-emerald-300"
+                            : "bg-slate-700 text-slate-400"
+                        }`}
+                      >
                         {profile.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <span className={`font-medium ${isInRound ? 'text-emerald-300' : 'text-white'}`}>{profile.name}</span>
+                        <span
+                          className={`font-medium ${
+                            isInRound ? "text-emerald-300" : "text-white"
+                          }`}
+                        >
+                          {profile.name}
+                        </span>
                         {isEditing ? (
                           <div className="flex items-center gap-2 mt-1">
                             <input
@@ -206,7 +227,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
                       {!isEditing && (
                         <>
                           {isInRound ? (
-                            <span className="text-emerald-400 text-xs font-medium px-2 py-1">Added</span>
+                            <span className="text-emerald-400 text-xs font-medium px-2 py-1">
+                              Added
+                            </span>
                           ) : (
                             <button
                               className="bg-emerald-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-emerald-500 transition-colors"
@@ -274,7 +297,10 @@ const StartScreen: React.FC<StartScreenProps> = ({
             </label>
             <div className="space-y-2">
               {players.map((player) => (
-                <div key={player.name} className="flex justify-between items-center bg-slate-800 rounded-xl px-4 py-3">
+                <div
+                  key={player.name}
+                  className="flex justify-between items-center bg-slate-800 rounded-xl px-4 py-3"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-emerald-900 flex items-center justify-center text-emerald-400 font-semibold text-sm">
                       {player.name.charAt(0).toUpperCase()}

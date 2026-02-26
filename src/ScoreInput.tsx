@@ -1,4 +1,5 @@
 import React from "react";
+import { calculateNetScore } from "./utils/scoring";
 
 interface ScoreInputProps {
   player: string;
@@ -13,10 +14,10 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   playerHandicap,
   strokesOnHole,
   value,
-  onScoreChange
+  onScoreChange,
 }) => {
   const grossScore = parseInt(value) || 0;
-  const netScore = grossScore > 0 ? Math.max(1, grossScore - strokesOnHole) : 0;
+  const netScore = grossScore > 0 ? calculateNetScore(grossScore, strokesOnHole) : 0;
 
   return (
     <div className="bg-slate-800 rounded-2xl p-4 mb-3">

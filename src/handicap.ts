@@ -1,9 +1,4 @@
-export interface CourseData {
-  par: number[];
-  handicapIndex: number[];
-  rating: number;
-  slope: number;
-}
+import { CourseData } from "./types";
 
 export function calculateCourseHandicap(playerHandicap: number, courseData: CourseData): number {
   return Math.round(playerHandicap * (courseData.slope / 113));

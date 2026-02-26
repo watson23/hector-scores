@@ -1,19 +1,9 @@
 import React, { useState } from "react";
-import { CourseData, getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
-
-interface Player {
-  name: string;
-  handicap: number;
-}
-
-interface SavedRound {
-  name: string;
-  date: string;
-  holeCount: number;
-  course: string;
-  players: Player[];
-  scores: { [playerName: string]: string[] };
-}
+import { SavedRound, CourseData } from "./types";
+import { courseDisplayName } from "./data/courses";
+import { getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
+import { getRounds, deleteRound as deleteRoundFromStorage } from "./utils/storage";
+import { calculateNetScore } from "./utils/scoring";
 
 interface RoundHistoryProps {
   onBack: () => void;
@@ -22,18 +12,10 @@ interface RoundHistoryProps {
 }
 
 const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, courses }) => {
-  const [rounds, setRounds] = useState<SavedRound[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("hector-history") || "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [rounds, setRounds] = useState<SavedRound[]>(getRounds);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [showNet, setShowNet] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
-
-  const courseName = (key: string) => key.charAt(0).toUpperCase() + key.slice(1) + " Golf";
 
   const totalPar = (round: SavedRound) => {
     const courseData = courses[round.course];
@@ -55,33 +37,32 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
     return getStrokesOnHoleUtil(playerHandicap, courseData, holeNumber);
   };
 
-  const playerNet = (round: SavedRound, player: Player) => {
+  const playerNet = (round: SavedRound, player: { name: string; handicap: number }) => {
     const s = round.scores[player.name] || [];
     return s.slice(0, round.holeCount).reduce((sum, val, index) => {
       const n = parseInt(val);
       if (isNaN(n)) return sum;
       const strokes = getStrokesOnHole(player.handicap, round.course, index + 1);
-      return sum + Math.max(1, n - strokes);
+      return sum + calculateNetScore(n, strokes);
     }, 0);
   };
 
-  const holesPlayed = (round: SavedRound, playerName: string) => {
+  const holesPlayedCount = (round: SavedRound, playerName: string) => {
     const s = round.scores[playerName] || [];
-    return s.slice(0, round.holeCount).filter(v => v && !isNaN(parseInt(v))).length;
+    return s.slice(0, round.holeCount).filter((v) => v && !isNaN(parseInt(v))).length;
   };
 
   const deleteRound = (index: number) => {
-    const updated = rounds.filter((_, i) => i !== index);
+    const updated = deleteRoundFromStorage(index);
     setRounds(updated);
-    localStorage.setItem("hector-history", JSON.stringify(updated));
     setConfirmDelete(null);
     setExpandedIndex(null);
   };
 
   const getWinner = (round: SavedRound, useNet: boolean) => {
     let best = { name: "", score: Infinity };
-    round.players.forEach(player => {
-      const played = holesPlayed(round, player.name);
+    round.players.forEach((player) => {
+      const played = holesPlayedCount(round, player.name);
       if (played === 0) return;
       const score = useNet ? playerNet(round, player) : playerGross(round, player.name);
       if (score < best.score) {
@@ -129,29 +110,51 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-white font-semibold">{round.name || "Unnamed Round"}</h3>
-                        <p className="text-slate-400 text-sm">{round.date} &middot; {courseName(round.course)}</p>
+                        <h3 className="text-white font-semibold">
+                          {round.name || "Unnamed Round"}
+                        </h3>
+                        <p className="text-slate-400 text-sm">
+                          {round.date} &middot; {courseDisplayName(round.course)}
+                        </p>
                         <p className="text-slate-500 text-xs mt-1">
-                          {round.holeCount} holes &middot; {round.players.length} player{round.players.length !== 1 ? "s" : ""}
-                          {winner && <span className="text-amber-400 ml-2">&#9679; {winner}</span>}
+                          {round.holeCount} holes &middot; {round.players.length} player
+                          {round.players.length !== 1 ? "s" : ""}
+                          {winner && (
+                            <span className="text-amber-400 ml-2">&#9679; {winner}</span>
+                          )}
                         </p>
                       </div>
-                      <span className="text-slate-500 text-lg">{isExpanded ? "&#9662;" : "&#9656;"}</span>
+                      <span className="text-slate-500 text-lg">
+                        {isExpanded ? "&#9662;" : "&#9656;"}
+                      </span>
                     </div>
 
                     {/* Quick scores preview */}
                     <div className="flex flex-wrap gap-3 mt-2">
-                      {round.players.map(player => {
+                      {round.players.map((player) => {
                         const gross = playerGross(round, player.name);
-                        const played = holesPlayed(round, player.name);
-                        const diff = gross - (courseData ? courseData.par.slice(0, played).reduce((s, v) => s + v, 0) : 0);
+                        const played = holesPlayedCount(round, player.name);
+                        const diff =
+                          gross -
+                          (courseData
+                            ? courseData.par.slice(0, played).reduce((s, v) => s + v, 0)
+                            : 0);
                         return (
                           <span key={player.name} className="text-sm">
                             <span className="text-slate-400">{player.name}</span>
                             <span className="text-white font-medium ml-1">{gross}</span>
                             {played > 0 && (
-                              <span className={`ml-1 ${diff > 0 ? "text-sky-400" : diff < 0 ? "text-red-400" : "text-emerald-400"}`}>
-                                ({diff > 0 ? "+" : ""}{diff})
+                              <span
+                                className={`ml-1 ${
+                                  diff > 0
+                                    ? "text-sky-400"
+                                    : diff < 0
+                                      ? "text-red-400"
+                                      : "text-emerald-400"
+                                }`}
+                              >
+                                ({diff > 0 ? "+" : ""}
+                                {diff})
                               </span>
                             )}
                           </span>
@@ -167,13 +170,17 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                       <div className="flex justify-center mb-4">
                         <div className="bg-slate-900 rounded-full p-1 flex">
                           <button
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${!showNet ? "bg-emerald-600 text-white" : "text-slate-400"}`}
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                              !showNet ? "bg-emerald-600 text-white" : "text-slate-400"
+                            }`}
                             onClick={() => setShowNet(false)}
                           >
                             Gross
                           </button>
                           <button
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${showNet ? "bg-emerald-600 text-white" : "text-slate-400"}`}
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                              showNet ? "bg-emerald-600 text-white" : "text-slate-400"
+                            }`}
                             onClick={() => setShowNet(true)}
                           >
                             Net
@@ -188,7 +195,9 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                             <tr className="bg-slate-700 text-slate-300">
                               <th className="px-2 py-1.5 text-left text-xs font-semibold">Hole</th>
                               {Array.from({ length: round.holeCount }).map((_, i) => (
-                                <th key={i} className="px-1.5 py-1.5 text-center font-semibold">{i + 1}</th>
+                                <th key={i} className="px-1.5 py-1.5 text-center font-semibold">
+                                  {i + 1}
+                                </th>
                               ))}
                               <th className="px-2 py-1.5 text-center font-bold">Tot</th>
                               <th className="px-2 py-1.5 text-center">+/-</th>
@@ -197,7 +206,9 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                               <tr className="bg-slate-700/50 text-slate-400">
                                 <td className="px-2 py-1 text-left">Par</td>
                                 {Array.from({ length: round.holeCount }).map((_, i) => (
-                                  <td key={i} className="px-1.5 py-1 text-center">{courseData.par[i]}</td>
+                                  <td key={i} className="px-1.5 py-1 text-center">
+                                    {courseData.par[i]}
+                                  </td>
                                 ))}
                                 <td className="px-2 py-1 text-center font-bold">{par}</td>
                                 <td className="px-2 py-1 text-center">-</td>
@@ -206,50 +217,98 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                           </thead>
                           <tbody>
                             {round.players
-                              .map(player => ({
+                              .map((player) => ({
                                 player,
-                                score: showNet ? playerNet(round, player) : playerGross(round, player.name),
-                                played: holesPlayed(round, player.name),
+                                score: showNet
+                                  ? playerNet(round, player)
+                                  : playerGross(round, player.name),
+                                played: holesPlayedCount(round, player.name),
                               }))
                               .sort((a, b) => a.score - b.score)
                               .map(({ player, score, played }) => {
                                 const s = round.scores[player.name] || [];
                                 const parPlayed = courseData
-                                  ? courseData.par.slice(0, played).reduce((sum, v) => sum + v, 0)
+                                  ? courseData.par
+                                      .slice(0, played)
+                                      .reduce((sum, v) => sum + v, 0)
                                   : 0;
                                 const diff = score - parPlayed;
 
                                 return (
-                                  <tr key={player.name} className="border-t border-slate-700/50">
+                                  <tr
+                                    key={player.name}
+                                    className="border-t border-slate-700/50"
+                                  >
                                     <td className="px-2 py-1 text-white font-medium whitespace-nowrap">
                                       {player.name}
-                                      <span className="text-slate-500 text-xs ml-1">({player.handicap})</span>
+                                      <span className="text-slate-500 text-xs ml-1">
+                                        ({player.handicap})
+                                      </span>
                                     </td>
                                     {Array.from({ length: round.holeCount }).map((_, i) => {
                                       const gross = parseInt(s[i]);
-                                      if (isNaN(gross)) return <td key={i} className="px-1.5 py-1 text-center text-slate-600">-</td>;
+                                      if (isNaN(gross))
+                                        return (
+                                          <td
+                                            key={i}
+                                            className="px-1.5 py-1 text-center text-slate-600"
+                                          >
+                                            -
+                                          </td>
+                                        );
 
-                                      const strokes = getStrokesOnHole(player.handicap, round.course, i + 1);
-                                      const net = Math.max(1, gross - strokes);
+                                      const strokes = getStrokesOnHole(
+                                        player.handicap,
+                                        round.course,
+                                        i + 1,
+                                      );
+                                      const net = calculateNetScore(gross, strokes);
                                       const displayScore = showNet ? net : gross;
                                       const holePar = courseData?.par[i] || 0;
 
                                       let color = "text-slate-300";
-                                      if (displayScore < holePar) color = "text-red-400 font-bold";
-                                      else if (displayScore === holePar) color = "text-emerald-400";
-                                      else if (displayScore === holePar + 1) color = "text-sky-400";
-                                      else if (displayScore >= holePar + 2) color = "text-sky-600";
+                                      if (displayScore < holePar)
+                                        color = "text-red-400 font-bold";
+                                      else if (displayScore === holePar)
+                                        color = "text-emerald-400";
+                                      else if (displayScore === holePar + 1)
+                                        color = "text-sky-400";
+                                      else if (displayScore >= holePar + 2)
+                                        color = "text-sky-600";
 
                                       return (
-                                        <td key={i} className={`px-1.5 py-1 text-center ${color}`}>
+                                        <td
+                                          key={i}
+                                          className={`px-1.5 py-1 text-center ${color}`}
+                                        >
                                           {displayScore}
-                                          {strokes > 0 && <span className="text-amber-400 text-xs ml-0.5">&#8226;</span>}
+                                          {strokes > 0 && (
+                                            <span className="text-amber-400 text-xs ml-0.5">
+                                              &#8226;
+                                            </span>
+                                          )}
                                         </td>
                                       );
                                     })}
-                                    <td className="px-2 py-1 text-center text-white font-bold">{score}</td>
-                                    <td className={`px-2 py-1 text-center font-medium ${diff > 0 ? "text-sky-400" : diff < 0 ? "text-red-400" : "text-emerald-400"}`}>
-                                      {played > 0 ? (diff > 0 ? `+${diff}` : diff === 0 ? "E" : diff) : "-"}
+                                    <td className="px-2 py-1 text-center text-white font-bold">
+                                      {score}
+                                    </td>
+                                    <td
+                                      className={`px-2 py-1 text-center font-medium ${
+                                        diff > 0
+                                          ? "text-sky-400"
+                                          : diff < 0
+                                            ? "text-red-400"
+                                            : "text-emerald-400"
+                                      }`}
+                                    >
+                                      {played > 0
+                                        ? diff > 0
+                                          ? `+${diff}`
+                                          : diff === 0
+                                            ? "E"
+                                            : diff
+                                        : "-"}
                                     </td>
                                   </tr>
                                 );

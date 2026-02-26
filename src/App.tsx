@@ -3,65 +3,41 @@ import StartScreen from "./StartScreen";
 import ScoreInput from "./ScoreInput";
 import Scorecard from "./Scorecard";
 import RoundHistory from "./RoundHistory";
-import { CourseData, getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
+import { Player, Scores } from "./types";
+import { courses, courseDisplayName } from "./data/courses";
+import { getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
+import { saveRound } from "./utils/storage";
+import { calculateTotalScore } from "./utils/scoring";
 import "./index.css";
-
-export interface Player {
-  name: string;
-  handicap: number;
-}
 
 type AppView = "start" | "playing" | "history";
 
 export default function GolfScoreApp() {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [playerInput, setPlayerInput] = useState("");
-  const [playerHandicap, setPlayerHandicap] = useState("");
-  const [scores, setScores] = useState<{ [playerName: string]: string[] }>({});
+  const [scores, setScores] = useState<Scores>({});
   const [hole, setHole] = useState(1);
   const [holeCount, setHoleCount] = useState(18);
   const [view, setView] = useState<AppView>("start");
   const [roundName, setRoundName] = useState("");
   const [course, setCourse] = useState("hirsala");
 
-  const courses: Record<string, CourseData> = {
-    hirsala: {
-      par: [4, 3, 4, 5, 4, 4, 4, 3, 5, 4, 4, 5, 4, 3, 5, 3, 4, 5],
-      handicapIndex: [5, 17, 7, 1, 11, 9, 3, 15, 13, 6, 14, 2, 10, 18, 4, 16, 12, 8],
-      rating: 74.4,
-      slope: 134
-    },
-    tapiola: {
-      par: [5, 3, 4, 3, 5, 4, 4, 4, 4, 4, 5, 4, 3, 4, 4, 4, 4, 4],
-      handicapIndex: [1, 17, 9, 15, 3, 11, 7, 13, 5, 8, 2, 6, 18, 12, 14, 10, 16, 4],
-      rating: 72.8,
-      slope: 127
-    },
-    vuosaari: {
-      par: [4, 4, 3, 5, 4, 4, 4, 4, 5, 5, 4, 5, 3, 4, 3, 4, 3, 4],
-      handicapIndex: [7, 11, 17, 1, 9, 13, 5, 15, 3, 2, 12, 4, 18, 8, 16, 6, 14, 10],
-      rating: 74.4,
-      slope: 136
-    },
-    gumböle: {
-      par: [5, 3, 4, 4, 3, 4, 3, 5, 5, 4, 4, 4, 3, 4, 3, 5, 4, 3],
-      handicapIndex: [1, 15, 11, 7, 17, 9, 13, 3, 5, 12, 8, 6, 18, 10, 16, 2, 4, 14],
-      rating: 69.0,
-      slope: 123
-    }
-  };
+  const courseData = courses[course];
 
   const getStrokesOnHole = (playerHandicap: number, holeNumber: number) => {
-    return getStrokesOnHoleUtil(playerHandicap, courses[course], holeNumber);
+    return getStrokesOnHoleUtil(playerHandicap, courseData, holeNumber);
   };
 
+  // Pad scores array when hole count or players change
   useEffect(() => {
     let needsUpdate = false;
-    const filledScores: typeof scores = {};
+    const filledScores: Scores = {};
     players.forEach((player) => {
       const current = scores[player.name] || [];
       if (current.length < holeCount) {
-        filledScores[player.name] = [...current, ...Array.from({ length: holeCount - current.length }, () => "")];
+        filledScores[player.name] = [
+          ...current,
+          ...Array.from({ length: holeCount - current.length }, () => ""),
+        ];
         needsUpdate = true;
       } else {
         filledScores[player.name] = current;
@@ -81,22 +57,10 @@ export default function GolfScoreApp() {
   };
 
   const totalScore = (playerName: string, useNet: boolean = false) => {
-    const relevantScores = scores[playerName]?.slice(0, holeCount) || [];
-    const player = players.find(p => p.name === playerName);
-
-    return relevantScores.reduce((sum, val, index) => {
-      const parsed = parseInt(val);
-      if (isNaN(parsed)) return sum;
-
-      let score = parsed;
-      if (useNet && player) {
-        const strokes = getStrokesOnHole(player.handicap, index + 1);
-        score = Math.max(1, parsed - strokes);
-      }
-
-      return sum + score;
-    }, 0);
+    return calculateTotalScore(playerName, scores, holeCount, players, courseData, useNet);
   };
+
+  // --- Views ---
 
   if (view === "history") {
     return (
@@ -125,10 +89,6 @@ export default function GolfScoreApp() {
         setHoleCount={setHoleCount}
         roundName={roundName}
         setRoundName={setRoundName}
-        playerInput={playerInput}
-        setPlayerInput={setPlayerInput}
-        playerHandicap={playerHandicap}
-        setPlayerHandicap={setPlayerHandicap}
         players={players}
         setPlayers={setPlayers}
         scores={scores}
@@ -139,7 +99,7 @@ export default function GolfScoreApp() {
     );
   }
 
-  const courseName = course.charAt(0).toUpperCase() + course.slice(1);
+  const courseName = courseDisplayName(course);
 
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-4">
@@ -157,20 +117,20 @@ export default function GolfScoreApp() {
         >
           New Round
         </button>
-        <span className="text-white font-semibold text-sm truncate mx-3">{roundName || "Unnamed Round"}</span>
+        <span className="text-white font-semibold text-sm truncate mx-3">
+          {roundName || "Unnamed Round"}
+        </span>
         <button
           className="px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-500 transition-colors"
           onClick={() => {
-            const savedRounds = JSON.parse(localStorage.getItem("hector-history") || "[]");
-            const newRound = {
+            saveRound({
               name: roundName || "Unnamed Round",
               date: new Date().toISOString().slice(0, 10),
               holeCount,
               course,
               players,
-              scores
-            };
-            localStorage.setItem("hector-history", JSON.stringify([...savedRounds, newRound]));
+              scores,
+            });
             alert("Round saved!");
           }}
         >
@@ -190,7 +150,9 @@ export default function GolfScoreApp() {
           </button>
           <div className="text-center">
             <div className="text-2xl font-bold text-white">Hole {hole}</div>
-            <div className="text-xs text-slate-400 font-medium">{courseName} &middot; {hole} / {holeCount}</div>
+            <div className="text-xs text-slate-400 font-medium">
+              {courseName} &middot; {hole} / {holeCount}
+            </div>
           </div>
           <button
             className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors"
@@ -204,10 +166,10 @@ export default function GolfScoreApp() {
         {/* Par and HCP pills */}
         <div className="flex justify-center gap-2 mb-5">
           <span className="text-xs font-semibold bg-emerald-900 text-emerald-400 px-3 py-1 rounded-full">
-            Par {courses[course].par[hole - 1]}
+            Par {courseData.par[hole - 1]}
           </span>
           <span className="text-xs font-semibold bg-slate-800 text-slate-400 px-3 py-1 rounded-full">
-            HCP {courses[course].handicapIndex[hole - 1]}
+            HCP {courseData.handicapIndex[hole - 1]}
           </span>
         </div>
 
@@ -220,7 +182,7 @@ export default function GolfScoreApp() {
               player={player.name}
               playerHandicap={player.handicap}
               strokesOnHole={strokes}
-              value={scores[player.name][hole - 1]}
+              value={scores[player.name]?.[hole - 1] ?? ""}
               onScoreChange={(value) => updateScore(player.name, value)}
             />
           );
