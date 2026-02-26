@@ -13,6 +13,15 @@ interface ScorecardProps {
   getStrokesOnHole: (playerHandicap: number, holeNumber: number) => number;
 }
 
+/** Color a score cell based on relation to par */
+function scoreColor(score: number, par: number): string {
+  if (score <= par - 2) return "text-amber-400 font-bold"; // eagle+
+  if (score === par - 1) return "text-red-400 font-bold"; // birdie
+  if (score === par) return "text-emerald-400"; // par
+  if (score === par + 1) return "text-sky-400"; // bogey
+  return "text-sky-600"; // double+
+}
+
 const Scorecard: React.FC<ScorecardProps> = ({
   players,
   scores,
@@ -41,6 +50,124 @@ const Scorecard: React.FC<ScorecardProps> = ({
   }, [players, scores, holeCount, showNet, totalScore]);
 
   if (!courseData) return null;
+
+  // Split holes into 9-hole sections
+  const sections: { label: string; start: number; end: number }[] = [];
+  if (holeCount <= 9) {
+    sections.push({ label: "", start: 0, end: holeCount });
+  } else {
+    sections.push({ label: "OUT", start: 0, end: 9 });
+    if (holeCount > 9) {
+      sections.push({ label: "IN", start: 9, end: holeCount });
+    }
+  }
+
+  /** Render a 9-hole scorecard table */
+  const renderSection = (start: number, end: number, label: string) => {
+    const holeCount9 = end - start;
+    const sectionPar = courseData.par.slice(start, end).reduce((s, v) => s + v, 0);
+
+    return (
+      <div key={label} className="overflow-x-auto">
+        <table className="w-full text-xs" style={{ minWidth: `${holeCount9 * 28 + 100}px` }}>
+          <thead>
+            {/* Hole numbers */}
+            <tr className="bg-slate-700 text-slate-300">
+              <th className="w-16 px-1.5 py-1.5 text-left font-semibold text-xs sticky left-0 bg-slate-700 z-10">
+                {label || "Hole"}
+              </th>
+              {Array.from({ length: holeCount9 }).map((_, i) => (
+                <th key={i} className="w-7 min-w-[28px] py-1.5 text-center font-semibold">
+                  {start + i + 1}
+                </th>
+              ))}
+              <th className="w-9 min-w-[36px] py-1.5 text-center font-bold bg-slate-600">
+                {label || "Tot"}
+              </th>
+            </tr>
+            {/* Par row */}
+            <tr className="bg-slate-700/50 text-slate-400">
+              <td className="px-1.5 py-1 text-left text-xs sticky left-0 bg-slate-700/50 z-10">
+                Par
+              </td>
+              {Array.from({ length: holeCount9 }).map((_, i) => (
+                <td key={i} className="py-1 text-center">
+                  {courseData.par[start + i]}
+                </td>
+              ))}
+              <td className="py-1 text-center font-semibold bg-slate-600/50">
+                {sectionPar}
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => {
+              const current = scores[player.name] || [];
+              const paddedScores = [
+                ...current,
+                ...Array(Math.max(0, end - current.length)).fill(""),
+              ];
+
+              // Section subtotal
+              let sectionTotal = 0;
+              let sectionHasScore = false;
+              for (let i = start; i < end; i++) {
+                const val = parseInt(paddedScores[i]);
+                if (!isNaN(val)) {
+                  const strokes = getStrokesOnHole(player.handicap, i + 1);
+                  sectionTotal += showNet ? calculateNetScore(val, strokes) : val;
+                  sectionHasScore = true;
+                }
+              }
+
+              return (
+                <tr key={player.name} className="border-t border-slate-700/50">
+                  <td className="px-1.5 py-1.5 text-white font-medium whitespace-nowrap text-xs sticky left-0 bg-slate-800 z-10">
+                    {player.name}
+                  </td>
+                  {Array.from({ length: holeCount9 }).map((_, i) => {
+                    const holeIdx = start + i;
+                    const grossScore = parseInt(paddedScores[holeIdx]);
+                    const par = courseData.par[holeIdx];
+                    const strokes = getStrokesOnHole(player.handicap, holeIdx + 1);
+
+                    if (isNaN(grossScore)) {
+                      return (
+                        <td key={i} className="py-1.5 text-center text-slate-600">
+                          ·
+                        </td>
+                      );
+                    }
+
+                    const netScore = calculateNetScore(grossScore, strokes);
+                    const displayScore = showNet ? netScore : grossScore;
+
+                    return (
+                      <td
+                        key={i}
+                        className={`py-1.5 text-center ${scoreColor(displayScore, par)} relative`}
+                      >
+                        {displayScore}
+                        {strokes > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-amber-400 rounded-full" />
+                        )}
+                      </td>
+                    );
+                  })}
+                  <td className="py-1.5 text-center font-bold text-white bg-slate-700/30">
+                    {sectionHasScore ? sectionTotal : "·"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Calculate overall totals for the summary row
+  const totalPar = courseData.par.slice(0, holeCount).reduce((s, v) => s + v, 0);
 
   return (
     <div className="space-y-4">
@@ -105,129 +232,66 @@ const Scorecard: React.FC<ScorecardProps> = ({
         </div>
       )}
 
-      {/* Detailed Scorecard */}
-      <div className="bg-slate-800 rounded-2xl overflow-hidden overflow-x-auto">
-        <table className="min-w-fit text-xs w-full">
-          <thead>
-            <tr className="bg-slate-700 text-slate-300">
-              <th className="px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide">
-                Player
-              </th>
-              {Array.from({ length: Number(holeCount) }).map((_, i) => (
-                <th key={i} className="px-1.5 py-2 text-center font-semibold">
-                  {i + 1}
-                </th>
-              ))}
-              <th className="px-2 py-2 text-center font-semibold">Tot</th>
-              <th className="px-2 py-2 text-center font-semibold">+/-</th>
-            </tr>
-            <tr className="bg-slate-700/50 text-slate-400">
-              <td className="px-2 py-1 text-left text-xs">Par</td>
-              {Array.from({ length: Number(holeCount) }).map((_, i) => (
-                <td key={i} className="px-1.5 py-1 text-center">
-                  {courseData.par[i]}
-                </td>
-              ))}
-              <td className="px-2 py-1 text-center font-semibold">
-                {courseData.par.slice(0, holeCount).reduce((sum, val) => sum + val, 0)}
-              </td>
-              <td className="px-2 py-1 text-center">-</td>
-            </tr>
-            <tr className="bg-slate-700/30 text-slate-500">
-              <td className="px-2 py-1 text-left text-xs">HCP</td>
-              {Array.from({ length: Number(holeCount) }).map((_, i) => (
-                <td key={i} className="px-1.5 py-1 text-center">
-                  {courseData.handicapIndex[i]}
-                </td>
-              ))}
-              <td className="px-2 py-1 text-center">-</td>
-              <td className="px-2 py-1 text-center">-</td>
-            </tr>
-          </thead>
-          <tbody>
-            {players.map((player) => {
-              const current = scores[player.name] || [];
-              const paddedScores = [...current, ...Array(holeCount - current.length).fill("")];
+      {/* Hole-by-hole scorecards — split by 9 */}
+      <div className="bg-slate-800 rounded-2xl overflow-hidden">
+        <div className="divide-y divide-slate-700">
+          {sections.map((sec) => renderSection(sec.start, sec.end, sec.label))}
+        </div>
 
-              return (
-                <tr key={player.name} className="border-t border-slate-700/50">
-                  <td className="px-2 py-1.5 text-white font-medium whitespace-nowrap">
-                    {player.name}
-                    <div className="text-xs text-slate-500">{player.handicap}</div>
+        {/* Total summary row */}
+        {holeCount > 9 && (
+          <div className="border-t border-slate-600">
+            <table className="w-full text-xs">
+              <tbody>
+                {/* Total par */}
+                <tr className="bg-slate-700/50 text-slate-400">
+                  <td className="w-16 px-1.5 py-1.5 text-left font-semibold">Total</td>
+                  <td className="py-1.5 text-center font-semibold">
+                    Par {totalPar}
                   </td>
-                  {Array.from({ length: Number(holeCount) }).map((_, i) => {
-                    const grossScore = parseInt(paddedScores[i]);
-                    const par = courseData.par[i];
-                    const strokes = getStrokesOnHole(player.handicap, i + 1);
-                    const netScore = !isNaN(grossScore)
-                      ? calculateNetScore(grossScore, strokes)
-                      : NaN;
+                  {players.map((player) => {
+                    const score = showNet
+                      ? totalScore(player.name, true)
+                      : totalScore(player.name, false);
+                    const played = scores[player.name]
+                      ?.slice(0, holeCount)
+                      .filter((s) => s && !isNaN(parseInt(s))).length || 0;
+                    if (played === 0) return <td key={player.name} />;
 
-                    let color = "text-slate-300";
-                    const scoreToCompare = showNet ? netScore : grossScore;
-
-                    if (!isNaN(scoreToCompare)) {
-                      if (scoreToCompare < par) color = "text-red-400 font-bold";
-                      else if (scoreToCompare === par) color = "text-emerald-400";
-                      else if (scoreToCompare === par + 1) color = "text-sky-400";
-                      else if (scoreToCompare >= par + 2) color = "text-sky-600";
-                    }
+                    const parPlayed = courseData.par
+                      .slice(0, holeCount)
+                      .reduce((sum, val, idx) => {
+                        const s = scores[player.name]?.[idx];
+                        return s && !isNaN(parseInt(s)) ? sum + val : sum;
+                      }, 0);
+                    const diff = score - parPlayed;
 
                     return (
-                      <td key={i} className={`px-1.5 py-1.5 text-center ${color} relative`}>
-                        <div>
-                          {showNet && !isNaN(netScore) ? netScore : paddedScores[i]}
-                        </div>
-                        {strokes > 0 && (
-                          <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
-                        )}
-                        {!showNet && !isNaN(grossScore) && strokes > 0 && (
-                          <div className="text-xs text-slate-500">({netScore})</div>
-                        )}
+                      <td key={player.name} className="py-1.5 text-center">
+                        <span className="text-white font-bold">{score}</span>
+                        <span
+                          className={`ml-1 ${
+                            diff > 0
+                              ? "text-sky-400"
+                              : diff < 0
+                                ? "text-red-400"
+                                : "text-emerald-400"
+                          }`}
+                        >
+                          ({diff > 0 ? "+" : ""}
+                          {diff === 0 ? "E" : diff})
+                        </span>
                       </td>
                     );
                   })}
-                  <td className="px-2 py-1.5 text-center font-bold text-white">
-                    {showNet ? totalScore(player.name, true) : totalScore(player.name, false)}
-                  </td>
-                  <td className="px-2 py-1.5 text-center font-bold">
-                    {(() => {
-                      const relevantScores = paddedScores.slice(0, holeCount);
-                      const played = relevantScores
-                        .map((s) => parseInt(s))
-                        .filter((n) => !isNaN(n));
-                      if (played.length === 0) return "-";
-
-                      const parPlayed = courseData.par
-                        .slice(0, played.length)
-                        .reduce((sum, val) => sum + val, 0);
-
-                      let scorePlayed;
-                      if (showNet) {
-                        scorePlayed = relevantScores.reduce((sum, scoreStr, index) => {
-                          const score = parseInt(scoreStr);
-                          if (isNaN(score)) return sum;
-                          const strokes = getStrokesOnHole(player.handicap, index + 1);
-                          return sum + calculateNetScore(score, strokes);
-                        }, 0);
-                      } else {
-                        scorePlayed = played.reduce((sum, val) => sum + val, 0);
-                      }
-
-                      const diff = scorePlayed - parPlayed;
-                      if (diff > 0) return <span className="text-sky-400">+{diff}</span>;
-                      if (diff < 0) return <span className="text-red-400">{diff}</span>;
-                      return <span className="text-emerald-400">E</span>;
-                    })()}
-                  </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Course Info */}
-        <div className="px-4 py-3 border-t border-slate-700 text-center">
+        <div className="px-4 py-2.5 border-t border-slate-700 text-center">
           <p className="text-xs text-slate-500">
             {courseDisplayName(course)} &middot; Rating {courseData.rating} &middot; Slope{" "}
             {courseData.slope}
