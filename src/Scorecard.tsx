@@ -142,15 +142,14 @@ const Scorecard: React.FC<ScorecardProps> = ({
                     const netScore = calculateNetScore(grossScore, strokes);
                     const displayScore = showNet ? netScore : grossScore;
 
+                    const strokeBg = showNet && strokes > 0 ? "bg-amber-400/10" : "";
+
                     return (
                       <td
                         key={i}
-                        className={`py-1.5 text-center ${scoreColor(displayScore, par)} relative`}
+                        className={`py-1.5 text-center ${scoreColor(displayScore, par)} ${strokeBg}`}
                       >
                         {displayScore}
-                        {strokes > 0 && (
-                          <span className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-amber-400 rounded-full" />
-                        )}
                       </td>
                     );
                   })}
