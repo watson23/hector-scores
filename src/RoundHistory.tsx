@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { CourseData, getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
 
 interface Player {
   name: string;
@@ -17,12 +18,7 @@ interface SavedRound {
 interface RoundHistoryProps {
   onBack: () => void;
   onLoadRound: (round: SavedRound) => void;
-  courses: Record<string, {
-    par: number[];
-    handicapIndex: number[];
-    rating: number;
-    slope: number;
-  }>;
+  courses: Record<string, CourseData>;
 }
 
 const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, courses }) => {
@@ -56,12 +52,7 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
   const getStrokesOnHole = (playerHandicap: number, course: string, holeNumber: number) => {
     const courseData = courses[course];
     if (!courseData) return 0;
-    const courseHandicap = Math.round(playerHandicap * (courseData.slope / 113));
-    const holeHandicapIndex = courseData.handicapIndex[holeNumber - 1];
-    if (courseHandicap >= holeHandicapIndex) {
-      return Math.floor(courseHandicap / 18) + (courseHandicap % 18 >= holeHandicapIndex ? 1 : 0);
-    }
-    return 0;
+    return getStrokesOnHoleUtil(playerHandicap, courseData, holeNumber);
   };
 
   const playerNet = (round: SavedRound, player: Player) => {
@@ -101,23 +92,24 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6">
+    <div className="min-h-screen bg-slate-950 px-4 py-6">
       <div className="max-w-lg mx-auto">
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
-            className="px-4 py-2 bg-gray-700 text-purple-200 rounded hover:bg-gray-600"
+            className="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700 transition-colors"
             onClick={onBack}
           >
-            ← Back
+            Back
           </button>
-          <h1 className="text-2xl font-bold text-purple-300">Round History</h1>
-          <div className="w-20"></div>
+          <h1 className="text-xl font-bold text-white">Round History</h1>
+          <div className="w-16"></div>
         </div>
 
         {rounds.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-purple-300 text-lg mb-2">No saved rounds yet</p>
-            <p className="text-gray-500">Play a round and save it to see it here!</p>
+          <div className="text-center py-16">
+            <p className="text-white text-lg font-medium mb-2">No saved rounds yet</p>
+            <p className="text-slate-500 text-sm">Play a round and save it to see it here!</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -129,22 +121,22 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
               const winner = getWinner(round, false);
 
               return (
-                <div key={realIndex} className="bg-gray-800 rounded-lg overflow-hidden">
+                <div key={realIndex} className="bg-slate-800 rounded-2xl overflow-hidden">
                   {/* Summary row */}
                   <button
-                    className="w-full text-left p-4 hover:bg-gray-750 transition-colors"
+                    className="w-full text-left p-4 hover:bg-slate-700/50 transition-colors"
                     onClick={() => setExpandedIndex(isExpanded ? null : realIndex)}
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-purple-200 font-semibold text-lg">{round.name || "Unnamed Round"}</h3>
-                        <p className="text-gray-400 text-sm">{round.date} • {courseName(round.course)}</p>
-                        <p className="text-gray-500 text-xs mt-1">
-                          {round.holeCount} holes • {round.players.length} player{round.players.length !== 1 ? "s" : ""}
-                          {winner && <span className="text-yellow-400 ml-2">🏆 {winner}</span>}
+                        <h3 className="text-white font-semibold">{round.name || "Unnamed Round"}</h3>
+                        <p className="text-slate-400 text-sm">{round.date} &middot; {courseName(round.course)}</p>
+                        <p className="text-slate-500 text-xs mt-1">
+                          {round.holeCount} holes &middot; {round.players.length} player{round.players.length !== 1 ? "s" : ""}
+                          {winner && <span className="text-amber-400 ml-2">&#9679; {winner}</span>}
                         </p>
                       </div>
-                      <span className="text-purple-400 text-xl">{isExpanded ? "▾" : "▸"}</span>
+                      <span className="text-slate-500 text-lg">{isExpanded ? "&#9662;" : "&#9656;"}</span>
                     </div>
 
                     {/* Quick scores preview */}
@@ -155,10 +147,10 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                         const diff = gross - (courseData ? courseData.par.slice(0, played).reduce((s, v) => s + v, 0) : 0);
                         return (
                           <span key={player.name} className="text-sm">
-                            <span className="text-gray-300">{player.name}</span>
+                            <span className="text-slate-400">{player.name}</span>
                             <span className="text-white font-medium ml-1">{gross}</span>
                             {played > 0 && (
-                              <span className={`ml-1 ${diff > 0 ? "text-blue-400" : diff < 0 ? "text-red-400" : "text-green-400"}`}>
+                              <span className={`ml-1 ${diff > 0 ? "text-sky-400" : diff < 0 ? "text-red-400" : "text-emerald-400"}`}>
                                 ({diff > 0 ? "+" : ""}{diff})
                               </span>
                             )}
@@ -170,18 +162,18 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
 
                   {/* Expanded detail */}
                   {isExpanded && (
-                    <div className="border-t border-gray-700 p-4">
+                    <div className="border-t border-slate-700 p-4">
                       {/* Net/Gross toggle */}
                       <div className="flex justify-center mb-4">
-                        <div className="bg-gray-900 rounded-lg p-1 flex">
+                        <div className="bg-slate-900 rounded-full p-1 flex">
                           <button
-                            className={`px-3 py-1 rounded text-sm transition-colors ${!showNet ? "bg-purple-600 text-white" : "text-purple-300"}`}
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${!showNet ? "bg-emerald-600 text-white" : "text-slate-400"}`}
                             onClick={() => setShowNet(false)}
                           >
                             Gross
                           </button>
                           <button
-                            className={`px-3 py-1 rounded text-sm transition-colors ${showNet ? "bg-purple-600 text-white" : "text-purple-300"}`}
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${showNet ? "bg-emerald-600 text-white" : "text-slate-400"}`}
                             onClick={() => setShowNet(true)}
                           >
                             Net
@@ -193,22 +185,22 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                       <div className="overflow-x-auto -mx-4 px-4">
                         <table className="min-w-fit text-xs w-full">
                           <thead>
-                            <tr className="bg-purple-900 text-purple-200">
-                              <th className="px-2 py-1 text-left">Hole</th>
+                            <tr className="bg-slate-700 text-slate-300">
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold">Hole</th>
                               {Array.from({ length: round.holeCount }).map((_, i) => (
-                                <th key={i} className="px-1.5 py-1 text-center">{i + 1}</th>
+                                <th key={i} className="px-1.5 py-1.5 text-center font-semibold">{i + 1}</th>
                               ))}
-                              <th className="px-2 py-1 text-center font-bold">Tot</th>
-                              <th className="px-2 py-1 text-center">±</th>
+                              <th className="px-2 py-1.5 text-center font-bold">Tot</th>
+                              <th className="px-2 py-1.5 text-center">+/-</th>
                             </tr>
                             {courseData && (
-                              <tr className="bg-gray-700 text-gray-300">
+                              <tr className="bg-slate-700/50 text-slate-400">
                                 <td className="px-2 py-1 text-left">Par</td>
                                 {Array.from({ length: round.holeCount }).map((_, i) => (
                                   <td key={i} className="px-1.5 py-1 text-center">{courseData.par[i]}</td>
                                 ))}
                                 <td className="px-2 py-1 text-center font-bold">{par}</td>
-                                <td className="px-2 py-1 text-center">–</td>
+                                <td className="px-2 py-1 text-center">-</td>
                               </tr>
                             )}
                           </thead>
@@ -228,36 +220,36 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                                 const diff = score - parPlayed;
 
                                 return (
-                                  <tr key={player.name} className="border-t border-gray-700">
-                                    <td className="px-2 py-1 text-purple-200 font-medium whitespace-nowrap">
+                                  <tr key={player.name} className="border-t border-slate-700/50">
+                                    <td className="px-2 py-1 text-white font-medium whitespace-nowrap">
                                       {player.name}
-                                      <span className="text-gray-500 text-xs ml-1">({player.handicap})</span>
+                                      <span className="text-slate-500 text-xs ml-1">({player.handicap})</span>
                                     </td>
                                     {Array.from({ length: round.holeCount }).map((_, i) => {
                                       const gross = parseInt(s[i]);
-                                      if (isNaN(gross)) return <td key={i} className="px-1.5 py-1 text-center text-gray-600">–</td>;
+                                      if (isNaN(gross)) return <td key={i} className="px-1.5 py-1 text-center text-slate-600">-</td>;
 
                                       const strokes = getStrokesOnHole(player.handicap, round.course, i + 1);
                                       const net = Math.max(1, gross - strokes);
                                       const displayScore = showNet ? net : gross;
                                       const holePar = courseData?.par[i] || 0;
 
-                                      let color = "text-gray-200";
+                                      let color = "text-slate-300";
                                       if (displayScore < holePar) color = "text-red-400 font-bold";
-                                      else if (displayScore === holePar) color = "text-green-400";
-                                      else if (displayScore === holePar + 1) color = "text-blue-300";
-                                      else if (displayScore >= holePar + 2) color = "text-blue-500";
+                                      else if (displayScore === holePar) color = "text-emerald-400";
+                                      else if (displayScore === holePar + 1) color = "text-sky-400";
+                                      else if (displayScore >= holePar + 2) color = "text-sky-600";
 
                                       return (
                                         <td key={i} className={`px-1.5 py-1 text-center ${color}`}>
                                           {displayScore}
-                                          {strokes > 0 && <span className="text-yellow-500 text-xs">•</span>}
+                                          {strokes > 0 && <span className="text-amber-400 text-xs ml-0.5">&#8226;</span>}
                                         </td>
                                       );
                                     })}
                                     <td className="px-2 py-1 text-center text-white font-bold">{score}</td>
-                                    <td className={`px-2 py-1 text-center font-medium ${diff > 0 ? "text-blue-400" : diff < 0 ? "text-red-400" : "text-green-400"}`}>
-                                      {played > 0 ? (diff > 0 ? `+${diff}` : diff) : "–"}
+                                    <td className={`px-2 py-1 text-center font-medium ${diff > 0 ? "text-sky-400" : diff < 0 ? "text-red-400" : "text-emerald-400"}`}>
+                                      {played > 0 ? (diff > 0 ? `+${diff}` : diff === 0 ? "E" : diff) : "-"}
                                     </td>
                                   </tr>
                                 );
@@ -268,15 +260,15 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
 
                       {/* Course info */}
                       {courseData && (
-                        <p className="text-gray-500 text-xs text-center mt-3">
-                          Rating: {courseData.rating} | Slope: {courseData.slope}
+                        <p className="text-slate-500 text-xs text-center mt-3">
+                          Rating {courseData.rating} &middot; Slope {courseData.slope}
                         </p>
                       )}
 
                       {/* Action buttons */}
                       <div className="flex justify-center gap-3 mt-4">
                         <button
-                          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm"
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-500 transition-colors"
                           onClick={() => onLoadRound(round)}
                         >
                           Continue Round
@@ -284,13 +276,13 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                         {confirmDelete === realIndex ? (
                           <div className="flex gap-2">
                             <button
-                              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                              className="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-medium hover:bg-rose-500 transition-colors"
                               onClick={() => deleteRound(realIndex)}
                             >
-                              Confirm Delete
+                              Confirm
                             </button>
                             <button
-                              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                              className="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-600 transition-colors"
                               onClick={() => setConfirmDelete(null)}
                             >
                               Cancel
@@ -298,7 +290,7 @@ const RoundHistory: React.FC<RoundHistoryProps> = ({ onBack, onLoadRound, course
                           </div>
                         ) : (
                           <button
-                            className="px-4 py-2 bg-gray-700 text-red-300 rounded hover:bg-gray-600 text-sm"
+                            className="px-4 py-2 bg-slate-700 text-rose-400 rounded-xl text-sm font-medium hover:bg-slate-600 transition-colors"
                             onClick={() => setConfirmDelete(realIndex)}
                           >
                             Delete

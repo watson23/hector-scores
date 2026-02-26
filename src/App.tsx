@@ -3,6 +3,7 @@ import StartScreen from "./StartScreen";
 import ScoreInput from "./ScoreInput";
 import Scorecard from "./Scorecard";
 import RoundHistory from "./RoundHistory";
+import { CourseData, getStrokesOnHole as getStrokesOnHoleUtil } from "./handicap";
 import "./index.css";
 
 export interface Player {
@@ -23,12 +24,7 @@ export default function GolfScoreApp() {
   const [roundName, setRoundName] = useState("");
   const [course, setCourse] = useState("hirsala");
 
-  const courses: Record<string, { 
-    par: number[]; 
-    handicapIndex: number[];
-    rating: number;
-    slope: number;
-  }> = {
+  const courses: Record<string, CourseData> = {
     hirsala: {
       par: [4, 3, 4, 5, 4, 4, 4, 3, 5, 4, 4, 5, 4, 3, 5, 3, 4, 5],
       handicapIndex: [5, 17, 7, 1, 11, 9, 3, 15, 13, 6, 14, 2, 10, 18, 4, 16, 12, 8],
@@ -55,21 +51,8 @@ export default function GolfScoreApp() {
     }
   };
 
-  // Calculate course handicap using World Handicap System formula
-  const calculateCourseHandicap = (playerHandicap: number, courseData: typeof courses.hirsala) => {
-    return Math.round(playerHandicap * (courseData.slope / 113));
-  };
-
-  // Get strokes received on each hole
   const getStrokesOnHole = (playerHandicap: number, holeNumber: number) => {
-    const courseData = courses[course];
-    const courseHandicap = calculateCourseHandicap(playerHandicap, courseData);
-    const holeHandicapIndex = courseData.handicapIndex[holeNumber - 1];
-    
-    if (courseHandicap >= holeHandicapIndex) {
-      return Math.floor(courseHandicap / 18) + (courseHandicap % 18 >= holeHandicapIndex ? 1 : 0);
-    }
-    return 0;
+    return getStrokesOnHoleUtil(playerHandicap, courses[course], holeNumber);
   };
 
   useEffect(() => {
@@ -100,17 +83,17 @@ export default function GolfScoreApp() {
   const totalScore = (playerName: string, useNet: boolean = false) => {
     const relevantScores = scores[playerName]?.slice(0, holeCount) || [];
     const player = players.find(p => p.name === playerName);
-    
+
     return relevantScores.reduce((sum, val, index) => {
       const parsed = parseInt(val);
       if (isNaN(parsed)) return sum;
-      
+
       let score = parsed;
       if (useNet && player) {
         const strokes = getStrokesOnHole(player.handicap, index + 1);
-        score = Math.max(1, parsed - strokes); // Net score can't be less than 1
+        score = Math.max(1, parsed - strokes);
       }
-      
+
       return sum + score;
     }, 0);
   };
@@ -156,11 +139,27 @@ export default function GolfScoreApp() {
     );
   }
 
+  const courseName = course.charAt(0).toUpperCase() + course.slice(1);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 p-6">
-      <div className="flex justify-center gap-4 mb-6 max-w-md mx-auto">
+    <div className="min-h-screen bg-slate-950 px-4 py-4">
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-4 max-w-lg mx-auto">
         <button
-          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
+          className="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700 transition-colors"
+          onClick={() => {
+            setPlayers([]);
+            setScores({});
+            setHole(1);
+            setView("start");
+            setRoundName("");
+          }}
+        >
+          New Round
+        </button>
+        <span className="text-white font-semibold text-sm truncate mx-3">{roundName || "Unnamed Round"}</span>
+        <button
+          className="px-3 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-500 transition-colors"
           onClick={() => {
             const savedRounds = JSON.parse(localStorage.getItem("hector-history") || "[]");
             const newRound = {
@@ -175,30 +174,44 @@ export default function GolfScoreApp() {
             alert("Round saved!");
           }}
         >
-          Save Round
-        </button>
-        <button
-          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 shadow"
-          onClick={() => {
-            setPlayers([]);
-            setScores({});
-            setHole(1);
-            setView("start");
-            setRoundName("");
-          }}
-        >
-          New Round
+          Save
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto xl:overflow-visible xl:max-w-none px-2">
-        <h1 className="text-3xl font-extrabold text-purple-200 text-center mb-1">{roundName || "Unnamed Round"}</h1>
-        <p className="text-md text-purple-400 text-center mb-5">{course.charAt(0).toUpperCase() + course.slice(1)} – Hole {hole} / {holeCount}</p>
+      <div className="max-w-lg mx-auto">
+        {/* Hole indicator with navigation */}
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <button
+            className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors"
+            disabled={hole <= 1}
+            onClick={() => setHole(hole - 1)}
+          >
+            &#8249;
+          </button>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-white">Hole {hole}</div>
+            <div className="text-xs text-slate-400 font-medium">{courseName} &middot; {hole} / {holeCount}</div>
+          </div>
+          <button
+            className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors"
+            disabled={hole >= holeCount}
+            onClick={() => setHole(hole + 1)}
+          >
+            &#8250;
+          </button>
+        </div>
 
-        <h2 className="text-xl font-semibold text-purple-100 text-center mb-2">
-          Hole {hole} (Par {courses[course].par[hole - 1]}, HCP {courses[course].handicapIndex[hole - 1]})
-        </h2>
-        
+        {/* Par and HCP pills */}
+        <div className="flex justify-center gap-2 mb-5">
+          <span className="text-xs font-semibold bg-emerald-900 text-emerald-400 px-3 py-1 rounded-full">
+            Par {courses[course].par[hole - 1]}
+          </span>
+          <span className="text-xs font-semibold bg-slate-800 text-slate-400 px-3 py-1 rounded-full">
+            HCP {courses[course].handicapIndex[hole - 1]}
+          </span>
+        </div>
+
+        {/* Score inputs */}
         {players.map((player) => {
           const strokes = getStrokesOnHole(player.handicap, hole);
           return (
@@ -213,21 +226,18 @@ export default function GolfScoreApp() {
           );
         })}
 
-        <div className="flex justify-center gap-4 mt-4 mb-8 max-w-md mx-auto">
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole <= 1} onClick={() => setHole(hole - 1)}>Previous</button>
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow" disabled={hole >= holeCount} onClick={() => setHole(hole + 1)}>Next</button>
+        {/* Scorecard section */}
+        <div className="mt-6 pt-6 border-t border-slate-800">
+          <Scorecard
+            players={players}
+            scores={scores}
+            holeCount={holeCount}
+            course={course}
+            courses={courses}
+            totalScore={totalScore}
+            getStrokesOnHole={getStrokesOnHole}
+          />
         </div>
-
-        <h2 className="text-2xl font-semibold mt-8 mb-3 text-purple-200 text-center">Scorecard</h2>
-        <Scorecard
-          players={players}
-          scores={scores}
-          holeCount={holeCount}
-          course={course}
-          courses={courses}
-          totalScore={totalScore}
-          getStrokesOnHole={getStrokesOnHole}
-        />
       </div>
     </div>
   );
