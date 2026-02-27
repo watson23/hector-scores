@@ -7,6 +7,8 @@ interface ScoreInputProps {
   strokesOnHole: number;
   value: string;
   onScoreChange: (value: string) => void;
+  /** When set, shows a "Next →" button in the bottom-right area */
+  onNextHole?: () => void;
 }
 
 const ScoreInput: React.FC<ScoreInputProps> = ({
@@ -15,6 +17,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   strokesOnHole,
   value,
   onScoreChange,
+  onNextHole,
 }) => {
   const grossScore = parseInt(value) || 0;
   const netScore = grossScore > 0 ? calculateNetScore(grossScore, strokesOnHole) : 0;
@@ -64,7 +67,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         </button>
       </div>
 
-      {/* Bottom row: text input for 10+ and score display */}
+      {/* Bottom row: text input for 10+ and score display / next button */}
       <div className="flex items-center justify-between">
         <input
           type="text"
@@ -80,12 +83,22 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
             }
           }}
         />
-        {grossScore > 0 && (
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-slate-400">Gross: <span className="text-white font-semibold">{grossScore}</span></span>
-            <span className="text-slate-400">Net: <span className="text-emerald-400 font-semibold">{netScore}</span></span>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {grossScore > 0 && (
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-slate-400">Gross: <span className="text-white font-semibold">{grossScore}</span></span>
+              <span className="text-slate-400">Net: <span className="text-emerald-400 font-semibold">{netScore}</span></span>
+            </div>
+          )}
+          {onNextHole && (
+            <button
+              onClick={onNextHole}
+              className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-sm font-semibold hover:bg-emerald-500 active:bg-emerald-700 transition-colors"
+            >
+              Next &rarr;
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

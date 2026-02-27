@@ -174,19 +174,46 @@ export default function GolfScoreApp() {
         </div>
 
         {/* Score inputs */}
-        {players.map((player) => {
-          const strokes = getStrokesOnHole(player.handicap, hole);
-          return (
-            <ScoreInput
-              key={player.name}
-              player={player.name}
-              playerHandicap={player.handicap}
-              strokesOnHole={strokes}
-              value={scores[player.name]?.[hole - 1] ?? ""}
-              onScoreChange={(value) => updateScore(player.name, value)}
-            />
+        {(() => {
+          const allScored = players.length > 0 && players.every(
+            (p) => {
+              const v = scores[p.name]?.[hole - 1];
+              return v && v !== "" && !isNaN(parseInt(v));
+            }
           );
-        })}
+          const canAdvance = allScored && hole < holeCount;
+          const goNext = () => setHole(hole + 1);
+
+          return (
+            <>
+              {players.map((player, idx) => {
+                const strokes = getStrokesOnHole(player.handicap, hole);
+                const isLast = idx === players.length - 1;
+                return (
+                  <ScoreInput
+                    key={player.name}
+                    player={player.name}
+                    playerHandicap={player.handicap}
+                    strokesOnHole={strokes}
+                    value={scores[player.name]?.[hole - 1] ?? ""}
+                    onScoreChange={(value) => updateScore(player.name, value)}
+                    onNextHole={isLast && canAdvance ? goNext : undefined}
+                  />
+                );
+              })}
+
+              {/* Big Next Hole button — appears when all players have scored */}
+              {canAdvance && (
+                <button
+                  className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-semibold text-base hover:bg-emerald-500 active:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/30 mb-2"
+                  onClick={goNext}
+                >
+                  Next Hole &rarr;
+                </button>
+              )}
+            </>
+          );
+        })()}
 
         {/* Scorecard section */}
         <div className="mt-6 pt-6 border-t border-slate-800">
