@@ -38,7 +38,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         <div className="flex items-center gap-2">
           {strokesOnHole > 0 && (
             <span className="text-xs bg-emerald-900 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
-              +{strokesOnHole} stroke{strokesOnHole > 1 ? 's' : ''}
+              {strokesOnHole} HCP stroke{strokesOnHole > 1 ? 's' : ''}
             </span>
           )}
         </div>
